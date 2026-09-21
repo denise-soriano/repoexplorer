@@ -1,16 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import Overview from '../../cmp/dash/Overview';
+import Overview from '../../../cmp/dash/Overview';
 
-vi.mock('../../cmp/charts/DataTable', () => ({
+vi.mock('../../../cmp/charts/DataTable', () => ({
     default: ({ title }: { title?: string }) => <div>{title}</div>,
 }));
 
-vi.mock('../../cmp/charts/PieChartDiv', () => ({
+vi.mock('../../../cmp/charts/PieChartDiv', () => ({
     default: ({ title }: { title?: string }) => <div>{title}</div>,
 }));
 
-vi.mock('../../cmp/charts/BarChartDiv', () => ({
+vi.mock('../../../cmp/charts/BarChartDiv', () => ({
     default: ({ title }: { title?: string }) => <div>{title}</div>,
 }));
 
