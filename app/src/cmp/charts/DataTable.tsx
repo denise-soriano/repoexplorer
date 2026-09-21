@@ -20,9 +20,12 @@ export default function DataTable({ title, endpoint }: chartProps) {
                     throw new Error(`Error fetching data: ${resp.status}`);
                 }
 
-                const json: Record<string, unknown>[] = await resp.json();
+                const json = await resp.json();
+                const arr: Record<string, unknown>[] = Array.isArray(json)
+                    ? json
+                    : (Object.values(json)[0] as Record<string, unknown>[]);
 
-                setData(json);
+                setData(arr);
             } catch (err) {
                 console.error(err);
                 setError(
