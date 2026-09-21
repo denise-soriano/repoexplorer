@@ -1,19 +1,13 @@
 import { useEffect, useState } from 'react';
-import { API_URL } from '../consts';
-import BarChartDiv from './charts/BarChartDiv';
-import DataBlock from './charts/DataBlock';
-import DataTable from './charts/DataTable';
-import PieChartDiv from './charts/PieChartDiv';
-
-type OverviewSummary = {
-    totalRepos?: number;
-    percentWithLicense?: number;
-    totalContributors?: number;
-    avgBusFactor?: number;
-};
+import { API_URL } from '../../consts';
+import type { overviewSummary } from '../../types/dash';
+import BarChartDiv from '../charts/BarChartDiv';
+import DataBlock from '../charts/DataBlock';
+import DataTable from '../charts/DataTable';
+import PieChartDiv from '../charts/PieChartDiv';
 
 export default function Overview() {
-    const [summary, setSummary] = useState<OverviewSummary | null>(null);
+    const [summary, setSummary] = useState<overviewSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -25,7 +19,7 @@ export default function Overview() {
                     throw new Error(`Error fetching overview: ${resp.status}`);
                 }
 
-                const json: OverviewSummary = await resp.json();
+                const json: overviewSummary = await resp.json();
                 setSummary(json);
             } catch (err) {
                 console.error(err);

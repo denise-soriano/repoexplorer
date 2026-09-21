@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import Overview from '../../cmp/Overview';
+import Overview from '../../cmp/dash/Overview';
 
 vi.mock('../../cmp/charts/DataTable', () => ({
     default: ({ title }: { title?: string }) => <div>{title}</div>,
