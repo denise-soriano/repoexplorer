@@ -25,8 +25,12 @@ export default function PieChartDiv({ title, endpoint }: chartProps) {
                     throw new Error(`Error fetching data: ${resp.status}`);
                 }
 
-                const json: pieSlice[] = await resp.json();
-                const withColors = json.map((d, i) => ({
+                const json = await resp.json();
+                const arr: pieSlice[] = Array.isArray(json)
+                    ? json
+                    : (Object.values(json)[0] as pieSlice[]);
+
+                const withColors = arr.map((d, i) => ({
                     ...d,
                     fill: PIE_COLORS[i % PIE_COLORS.length],
                 }));
