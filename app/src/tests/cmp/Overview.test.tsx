@@ -33,9 +33,7 @@ describe('Overview', () => {
         render(<Overview />);
 
         await waitFor(() => {
-            expect(
-                screen.getByText('Total repositories'),
-            ).toBeInTheDocument();
+            expect(screen.getByText('Total repositories')).toBeInTheDocument();
         });
 
         expect(screen.getByText('42')).toBeInTheDocument();
@@ -63,13 +61,9 @@ describe('Overview', () => {
             screen.getByText('Community Files Presence'),
         ).toBeInTheDocument();
 
-        expect(
-            screen.getByText('Language Distribution'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('Language Distribution')).toBeInTheDocument();
 
-        expect(
-            screen.getByText('License Distribution'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('License Distribution')).toBeInTheDocument();
 
         expect(
             screen.getByText('Language Distribution by Type'),
