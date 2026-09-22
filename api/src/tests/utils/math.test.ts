@@ -295,6 +295,28 @@ describe('math utilities', () => {
             ]);
         });
 
+        it('treats missing values as 0', () => {
+            const rows = [
+                makeRepo({
+                    university: 'SLU',
+                    stargazersCount: 10,
+                    forksCount: 2,
+                    releaseDownloads: null as any,
+                    contributorCount: undefined,
+                })
+            ];
+
+            expect(makeImpactIndicatorsArray(rows)).toEqual([
+                {
+                    name: 'SLU',
+                    stars: 10,
+                    forks: 2,
+                    downloads: 0,
+                    contributors: 0,
+                },
+            ]);
+        });
+
         it('returns an empty array for empty rows', () => {
             expect(makeImpactIndicatorsArray([])).toEqual([]);
         });

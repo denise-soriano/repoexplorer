@@ -5,6 +5,7 @@ import overview from './routes/overview';
 import impact from './routes/impact';
 import security from './routes/security';
 import sustainability from './routes/sustainability';
+import organization from './routes/organization';
 import { BASE_SUSTAINABILITY } from './consts';
 
 export const ROUTES = [
@@ -13,6 +14,7 @@ export const ROUTES = [
     { router: impact, route: '/impact' },
     { router: security, route: '/security' },
     { router: sustainability, route: BASE_SUSTAINABILITY },
+    { router: organization, route: '/organization' }
 ];
 
 export function createApp(origin?: string) {

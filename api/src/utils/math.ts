@@ -1,4 +1,4 @@
-import type { repoData, secrData } from '../types/appData';
+import type { repoData, secrData, orgsData } from '../types/appData';
 import type {
     nameValueArr,
     sustainabilityCommunityFile,
@@ -33,13 +33,19 @@ export function getAvailableAvg(rows: repoData[], field: keyof repoData): number
 }
 
 // Return the number of rows where the value in field is not null
-export function getCountFieldNotNull(rows: repoData[], field: keyof repoData): number {
+export function getCountFieldNotNull<T extends Record<string, unknown>> (
+    rows: T[],
+    field: keyof T
+): number {
     if (rows.length === 0) return 0;
-    return rows.filter((row) => row[field] !== null).length;
+    return rows.filter((row) => row[field]  !== null && row[field] !== undefined).length;
 }
 
 // Return the number of rows where the value of the passed field is not null
-export function getPercentFieldNotNull(rows: repoData[], field: keyof repoData): number {
+export function getPercentFieldNotNull<T extends Record<string, unknown>> (
+    rows: T[],
+    field: keyof T
+): number {
     if (rows.length === 0) return 0;
     return (getCountFieldNotNull(rows, field) / rows.length) * 100;
 }
@@ -50,12 +56,15 @@ export function makeFieldsNotNullArray(rows: repoData[], fields: (keyof repoData
 }
 
 // Return count of rows grouped by field. If field is not passed, return total length
-function getCountsByField(rows: repoData[], field?: keyof repoData): Record<string, number> {
+function getCountsByField<T extends Record<string, unknown>> (
+    rows: T[],
+    field?: keyof T
+): Record<string, number> {
     if (!field) return { total: rows.length };
 
     const counts: Record<string, number> = {};
     for (const row of rows) {
-        const key = row[field] || 'Unknown';
+        const key = String(row[field] || 'Unknown');
         counts[key] = (counts[key] || 0) + 1;
     }
     return counts;
@@ -91,7 +100,10 @@ export function makeFieldDistributionByArray(rows: repoData[], field: keyof repo
 }
 
 // Return array of counts of rows grouped by field
-export function makeCountsArray(rows: repoData[], field?: keyof repoData): nameValueArr {
+export function makeCountsArray<T extends Record<string, unknown>> (
+    rows: T[],
+    field?: keyof T
+): nameValueArr {
     const counts = getCountsByField(rows, field);
     return makeNameValueArr(counts);
 }
@@ -136,6 +148,7 @@ export function makeImpactIndicatorsArray(rows: repoData[]) {
     >();
 
     for (const row of rows) {
+
         const current = totals.get(row.university) ?? {
             name: row.university,
             stars: 0,
@@ -144,10 +157,10 @@ export function makeImpactIndicatorsArray(rows: repoData[]) {
             contributors: 0,
         };
 
-        current.stars += row.stargazersCount;
-        current.forks += row.forksCount;
-        current.downloads += row.releaseDownloads;
-        current.contributors += row.contributorCount;
+        current.stars += Number.isFinite(row.stargazersCount) ? row.stargazersCount : 0;
+        current.forks += Number.isFinite(row.forksCount) ? row.forksCount : 0;
+        current.downloads += Number.isFinite(row.releaseDownloads) ? row.releaseDownloads : 0;
+        current.contributors += Number.isFinite(row.contributorCount) ? row.contributorCount : 0;
 
         totals.set(row.university, current);
     }
@@ -349,6 +362,38 @@ export function makeAvgScorePerMetricArray(rows: secrData[]): nameValueArr {
         return {
             name: field,
             value,
+        };
+    });
+}
+
+export function makeDateDistributionArray(rows: orgsData[], field: keyof orgsData) {
+    const distribution = [];
+
+    for(let year = 2008; year <= 2026; year++) {
+        distribution.push({
+            name: String(year),
+            value: rows.filter((row) => {
+                const date = new Date(String(row[field]));
+                return !Number.isNaN(date.getTime()) && date.getFullYear() === year;
+            }).length,
+        });
+    }
+
+    return distribution;
+}
+
+const PROFILE = ['url', 'location', 'description', 'email', 'company'] as const;
+
+export function makeProfileCompleteDistributionArray(rows: orgsData[]) {
+    return PROFILE.map((field) => {
+        const complete = rows.filter((row) => {
+            const value = row[field];
+            return value !== null && value !== undefined && value !== '';
+        }).length;
+
+        return {
+            name: field,
+            value: rows.length ?(complete / rows.length) * 100: 0,
         };
     });
 }

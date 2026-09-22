@@ -62,13 +62,13 @@ export type secrData = {
 export type orgsData = {
     login: string;
     name: string;
-    description: string;
-    location: string;
-    company: string;
-    email: string;
-    url: string;
+    description: string | null;
+    location: string | null;
+    company: string | null;
+    email: string | null;
+    url: string | null;
     createdAt: string;
     updatedAt: string;
     university: string;
-    affiliationPredictionOrgs: string;
+    affiliationPredictionOrgs: string | null;
 };

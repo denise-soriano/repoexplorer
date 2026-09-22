@@ -80,3 +80,14 @@ export type RespSecurity = {
     securityScorecardByRepo?: secrData[];
     avgScorePerMetric?: nameValueArr;
 };
+
+// /organization route base type
+export type RespOrganization = {
+    totalOrganizations?: number;
+    percentOrganizationsURL?: number;
+    percentOrganizationsDescription?: number;
+    percentOrganizationsEmail?: number;
+    orgsPerUniversity?: nameValueArr;
+    orgsCreatedPerYear?: nameValueArr;
+    profileCompleteness?: nameValueArr;
+};
