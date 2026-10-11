@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import NavBar from './NavBar';
 import Overview from './dash/Overview';
+import Security from './dash/Security';
+import Sustainability from './dash/Sustainability';
 import Organization from './dash/Organization';
 import Impact from './dash/Impact';
 import aboutText from '../../../docs/about.md?raw';
@@ -90,8 +92,14 @@ function App() {
 
                             <div className="tab-view">
                                 {repoTab === 'Overview' && <Overview />}
+                                {repoTab === 'Security' && <Security />}
+                                {repoTab === 'Sustainability' && (
+                                    <Sustainability />
+                                )}
                                 {repoTab === 'Impact' && <Impact />}
                                 {repoTab !== 'Overview' &&
+                                    repoTab !== 'Security' &&
+                                    repoTab !== 'Sustainability' &&
                                     repoTab !== 'Impact' && (
                                         <div className="tab-placeholder">
                                             <p>{repoTab} Dashboard</p>

@@ -9,6 +9,7 @@ export type chartProps = {
     horizontal?: boolean;
     seriesKeys?: string[];
     seriesLabels?: string[];
+    maxRows?: number;
 };
 
 export type barDatum = {
