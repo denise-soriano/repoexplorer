@@ -20,7 +20,7 @@ describe('Sustainability', () => {
             ok: true,
             json: async () => ({
                 avgBusFactor: 2.5,
-                avgContributors: 4.6
+                avgContributors: 4.6,
             }),
         } as Response);
 
@@ -39,9 +39,7 @@ describe('Sustainability', () => {
             screen.getByText('Sustainability Indicators per University'),
         ).toBeInTheDocument();
 
-        expect(
-            screen.getByText('Community Files'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('Community Files')).toBeInTheDocument();
 
         expect(
             screen.getByText('Community Files by # Stars'),
@@ -49,7 +47,9 @@ describe('Sustainability', () => {
 
         expect(screen.getByText('Bus Factor Distribution')).toBeInTheDocument();
 
-        expect(screen.getByText('Contributor Count Distribution')).toBeInTheDocument();
+        expect(
+            screen.getByText('Contributor Count Distribution'),
+        ).toBeInTheDocument();
     });
 
     it('shows an error message when the sustainability request fails', async () => {

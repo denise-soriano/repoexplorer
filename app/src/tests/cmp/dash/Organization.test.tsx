@@ -33,9 +33,7 @@ describe('Organization', () => {
         expect(screen.getByText('With URL')).toBeInTheDocument();
         expect(screen.getByText('55.0%')).toBeInTheDocument();
 
-        expect(
-            screen.getByText('With Description'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('With Description')).toBeInTheDocument();
         expect(screen.getByText('76.0%')).toBeInTheDocument();
 
         expect(screen.getByText('With Email')).toBeInTheDocument();
@@ -49,9 +47,7 @@ describe('Organization', () => {
             screen.getByText('Organizations Created Per Year'),
         ).toBeInTheDocument();
 
-        expect(
-            screen.getByText('Profile Completeness'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('Profile Completeness')).toBeInTheDocument();
     });
 
     it('shows an error message when the Organization request fails', async () => {

@@ -74,7 +74,9 @@ describe('HeatmapTable', () => {
 
         await waitFor(() => {
             expect(
-                screen.getByText(/Failed to load Average score per Security Metric/),
+                screen.getByText(
+                    /Failed to load Average score per Security Metric/,
+                ),
             ).toBeInTheDocument();
         });
         expect(
