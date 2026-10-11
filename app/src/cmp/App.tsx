@@ -3,6 +3,8 @@ import NavBar from './NavBar';
 import Overview from './dash/Overview';
 import Security from './dash/Security';
 import Sustainability from './dash/Sustainability';
+import Organization from './dash/Organization';
+import Impact from './dash/Impact';
 import aboutText from '../../../docs/about.md?raw';
 import Markdown from 'react-markdown';
 import SidebarFilters from './SidebarFilters';
@@ -94,9 +96,11 @@ function App() {
                                 {repoTab === 'Sustainability' && (
                                     <Sustainability />
                                 )}
+                                {repoTab === 'Impact' && <Impact />}
                                 {repoTab !== 'Overview' &&
                                     repoTab !== 'Security' &&
-                                    repoTab !== 'Sustainability' && (
+                                    repoTab !== 'Sustainability' &&
+                                    repoTab !== 'Impact' && (
                                         <div className="tab-placeholder">
                                             <p>{repoTab} Dashboard</p>
                                         </div>
@@ -132,9 +136,12 @@ function App() {
                             />
 
                             <div className="tab-view">
-                                <div className="tab-placeholder">
-                                    <p>Organizations {orgTab} Dashboard</p>
-                                </div>
+                                {orgTab === 'Overview' && <Organization />}
+                                {orgTab !== 'Overview' && (
+                                    <div className="tab-placeholder">
+                                        <p>Organizations {orgTab} Dashboard</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
