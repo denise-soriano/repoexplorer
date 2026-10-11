@@ -8,7 +8,7 @@ export default function Security() {
                 <DataTable
                     title="Security scorecard by repository (OpenSSF Scorecard)"
                     endpoint="security/securityScorecardByRepo"
-                    maxRows={10}
+                    scrollable
                 />
 
                 <HeatmapTable

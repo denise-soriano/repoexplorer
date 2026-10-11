@@ -3,7 +3,12 @@ import { API_URL } from '../../consts';
 import type { chartProps } from '../../types/charts';
 import { formatLabel } from '../../utils/formatLabel';
 
-export default function DataTable({ title, endpoint, maxRows }: chartProps) {
+export default function DataTable({
+    title,
+    endpoint,
+    maxRows,
+    scrollable = false,
+}: chartProps & { scrollable?: boolean }) {
     const [data, setData] = useState<Record<string, unknown>[]>([]);
     const [loading, setLoading] = useState<boolean>(Boolean(endpoint));
     const [error, setError] = useState<string>('');
@@ -63,54 +68,72 @@ export default function DataTable({ title, endpoint, maxRows }: chartProps) {
             {data.length === 0 ? (
                 <p>No data available</p>
             ) : (
-                <table
+                <div
                     style={{
-                        width: '100%',
-                        minWidth: 'max-content',
-                        borderCollapse: 'collapse',
+                        maxHeight: scrollable ? '480px' : undefined,
+                        overflowY: scrollable ? 'auto' : undefined,
+                        overflowX: 'auto',
                     }}
                 >
-                    <thead>
-                        <tr
-                            style={{
-                                borderBottom: '2px solid #ddd',
-                                textAlign: 'left',
-                            }}
-                        >
-                            {headers.map((header) => (
-                                <th
-                                    key={header}
-                                    style={{ padding: '12px 8px' }}
-                                >
-                                    {header === 'name'
-                                        ? 'University'
-                                        : header === 'value'
-                                          ? 'Count'
-                                          : formatLabel(header)}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data
-                            .slice(0, maxRows ?? data.length)
-                            .map((row, index) => (
-                                <tr
-                                    key={index}
-                                    style={{ borderBottom: '1px solid #eee' }}
-                                >
-                                    {headers.map((header) => (
-                                        <td
-                                            key={header}
-                                            style={{ padding: '12px 8px' }}
-                                        >
-                                            {String(row[header] ?? '')}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
+                    <table
+                        style={{
+                            width: '100%',
+                            minWidth: 'max-content',
+                            borderCollapse: 'collapse',
+                        }}
+                    >
+                        <thead>
+                            <tr
+                                style={{
+                                    borderBottom: '2px solid #ddd',
+                                    textAlign: 'left',
+                                }}
+                            >
+                                {headers.map((header) => (
+                                    <th
+                                        key={header}
+                                        style={{ padding: '12px 8px' }}
+                                    >
+                                        {header === 'name'
+                                            ? 'University'
+                                            : header === 'value'
+                                              ? 'Count'
+                                              : formatLabel(header)}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data
+                                .slice(0, maxRows ?? data.length)
+                                .map((row, index) => (
+                                    <tr
+                                        key={index}
+                                        style={{
+                                            borderBottom: '1px solid #eee',
+                                        }}
+                                    >
+                                        {headers.map((header) => (
+                                            <td
+                                                key={header}
+                                                style={{
+                                                    padding: '12px 8px',
+                                                }}
+                                            >
+                                                {typeof row[header] === 'number'
+                                                    ? Number(
+                                                          row[header].toFixed(
+                                                              2,
+                                                          ),
+                                                      ).toString()
+                                                    : String(row[header] ?? '')}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );

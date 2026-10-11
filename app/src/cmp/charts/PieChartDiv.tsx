@@ -55,11 +55,11 @@ export default function PieChartDiv({ title, endpoint }: chartProps) {
 
     return (
         <div
+            className="dashboard-table-col"
             style={{
                 width: '100%',
                 margin: '0 auto',
                 textAlign: 'center',
-                border: '2px solid black',
             }}
         >
             <h2>{title}</h2>

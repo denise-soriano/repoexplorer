@@ -69,10 +69,12 @@ export default function Sustainability() {
     return (
         <div className="dashboard">
             <div className="dashboard-top-row dashboard-top-row--wide-left">
-                <DataTable
-                    title="Sustainability Indicators per University"
-                    endpoint="sustainability/sustainabilityIndicatorsPerUniversity"
-                />
+                <div className="dashboard-table-col">
+                    <DataTable
+                        title="Sustainability Indicators per University"
+                        endpoint="sustainability/sustainabilityIndicatorsPerUniversity"
+                    />
+                </div>
 
                 <div className="dashboard-summary-grid dashboard-summary-grid--single-column">
                     <DataBlock
@@ -93,7 +95,7 @@ export default function Sustainability() {
                     stacked
                     seriesKeys={['DEV', 'DOCS', 'EDU', 'WEB']}
                 />
-                <div className="community-files-stars">
+                <div className="community-files-stars dashboard-table-col">
                     <h2>Community Files by # Stars</h2>
                     <table>
                         <thead>

@@ -7,15 +7,18 @@ vi.mock('../../../cmp/charts/DataTable', () => ({
         title,
         endpoint,
         maxRows,
+        scrollable,
     }: {
         title?: string;
         endpoint?: string;
         maxRows?: number;
+        scrollable?: boolean;
     }) => (
         <div
             data-testid="scorecard-table"
             data-endpoint={endpoint}
             data-max-rows={maxRows}
+            data-scrollable={String(scrollable)}
         >
             {title}
         </div>
@@ -55,8 +58,12 @@ it('passes the correct configuration to each chart', () => {
     );
 
     expect(screen.getByTestId('scorecard-table')).toHaveAttribute(
+        'data-scrollable',
+        'true',
+    );
+
+    expect(screen.getByTestId('scorecard-table')).not.toHaveAttribute(
         'data-max-rows',
-        '10',
     );
 
     expect(screen.getByTestId('security-heatmap')).toHaveAttribute(
