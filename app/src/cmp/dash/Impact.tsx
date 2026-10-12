@@ -48,16 +48,16 @@ export default function Impact() {
     }
 
     return (
-        <div className="overview-dashboard">
-            <div className="overview-top-row">
-                <div className="overview-table-col">
+        <div className="dashboard">
+            <div className="dashboard-top-row dashboard-top-row--wide-left">
+                <div className="dashboard-table-col">
                     <DataTable
                         title="Impact Indicators per University"
                         endpoint="impact/impactIndicatorsPerUniversity"
                     />
                 </div>
 
-                <div className="overview-summary-grid">
+                <div className="dashboard-summary-grid">
                     <DataBlock
                         header="Total stars"
                         value={summary.totalStars ?? 0}
@@ -77,14 +77,7 @@ export default function Impact() {
                 </div>
             </div>
 
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '24px',
-                    width: '100%',
-                }}
-            >
+            <div className="dashboard-chart-grid">
                 <BarChartDiv
                     title="Stars Distribution"
                     endpoint="impact/starsDistribution"
