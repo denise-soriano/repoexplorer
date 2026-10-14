@@ -34,3 +34,6 @@ The frontend can be served by nginx via the *app* container (production behavior
 
 ### 4. Optionally, download the UC OSPO Network Parquet file locally:
 - See instructions in [dev scripts file](/docs/dev/setup_scripts.md)
+
+# API Routes
+See the [API Route Reference](docs/dev/api_routes.md) for information on every endpoint, parameter, response, etc. 
