@@ -32,9 +32,7 @@ describe('GET /security', () => {
             },
             {
                 query: { license: ['0', '9'] },
-                scorecardRows: sampleSecrData.filter(
-                    (repo) => repo.license === 0 || repo.license === 9,
-                ).length,
+                scorecardRows: sampleSecrData.filter((repo) => repo.license === 0 || repo.license === 9).length,
             },
             {
                 query: { license: '10', ignored: 'does-not-filter' },

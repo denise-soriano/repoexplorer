@@ -29,28 +29,16 @@ describe('GET /impact', () => {
         expect(res.status).toBe(200);
         expect(Object.keys(res.body).sort()).toEqual([...IMPACT_FIELDS].sort());
         expect(res.body.totalStars).toBe(
-            sampleRepoData.reduce<number>(
-                (total, repo) => total + (Number(repo.stargazersCount) || 0),
-                0,
-            ),
+            sampleRepoData.reduce<number>((total, repo) => total + (Number(repo.stargazersCount) || 0), 0),
         );
         expect(res.body.totalForks).toBe(
-            sampleRepoData.reduce<number>(
-                (total, repo) => total + (Number(repo.forksCount) || 0),
-                0,
-            ),
+            sampleRepoData.reduce<number>((total, repo) => total + (Number(repo.forksCount) || 0), 0),
         );
         expect(res.body.totalDownloads).toBe(
-            sampleRepoData.reduce<number>(
-                (total, repo) => total + (Number(repo.releaseDownloads) || 0),
-                0,
-            ),
+            sampleRepoData.reduce<number>((total, repo) => total + (Number(repo.releaseDownloads) || 0), 0),
         );
         expect(res.body.totalContributors).toBe(
-            sampleRepoData.reduce<number>(
-                (total, repo) => total + (Number(repo.contributorCount) || 0),
-                0,
-            ),
+            sampleRepoData.reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
         );
         expect(
             res.body.impactIndicatorsPerUniversity.reduce(
@@ -80,10 +68,7 @@ describe('GET /impact', () => {
             '10k+',
         ]);
         expect(
-            res.body.starsDistribution.reduce(
-                (total: number, group: { value: number }) => total + group.value,
-                0,
-            ),
+            res.body.starsDistribution.reduce((total: number, group: { value: number }) => total + group.value, 0),
         ).toBe(sampleRepoData.length);
     });
 

@@ -112,7 +112,9 @@ const ORG_FILTERS = [
     },
 ];
 
-const getDefaultValues = (filters: typeof REPO_FILTERS | typeof ORG_FILTERS) => {
+const getDefaultValues = (
+    filters: typeof REPO_FILTERS | typeof ORG_FILTERS,
+) => {
     const defaults: Record<string, string | number> = {};
 
     filters.forEach((filter) => {
@@ -180,7 +182,11 @@ function App() {
                                             [key]: value,
                                         }))
                                     }
-                                    onReset={() => setRepoFilterValues(getDefaultValues(REPO_FILTERS))}
+                                    onReset={() =>
+                                        setRepoFilterValues(
+                                            getDefaultValues(REPO_FILTERS),
+                                        )
+                                    }
                                 />
                             )}
                         </div>
@@ -197,11 +203,17 @@ function App() {
                                 {repoTab === 'Overview' && (
                                     <Overview filters={repoFilterValues} />
                                 )}
-                                {repoTab === 'Security' && <Security filters={repoFilterValues} />}
-                                {repoTab === 'Sustainability' && (
-                                    <Sustainability filters={repoFilterValues} />
+                                {repoTab === 'Security' && (
+                                    <Security filters={repoFilterValues} />
                                 )}
-                                {repoTab === 'Impact' && <Impact filters={repoFilterValues} />}
+                                {repoTab === 'Sustainability' && (
+                                    <Sustainability
+                                        filters={repoFilterValues}
+                                    />
+                                )}
+                                {repoTab === 'Impact' && (
+                                    <Impact filters={repoFilterValues} />
+                                )}
                                 {repoTab !== 'Overview' &&
                                     repoTab !== 'Security' &&
                                     repoTab !== 'Sustainability' &&
@@ -237,7 +249,11 @@ function App() {
                                             [key]: value,
                                         }))
                                     }
-                                    onReset={() => setOrgFilterValues(getDefaultValues(ORG_FILTERS))}
+                                    onReset={() =>
+                                        setOrgFilterValues(
+                                            getDefaultValues(ORG_FILTERS),
+                                        )
+                                    }
                                 />
                             )}
                         </div>
@@ -251,7 +267,9 @@ function App() {
                             />
 
                             <div className="tab-view">
-                                {orgTab === 'Overview' && <Organization filters={orgFilterValues} />}
+                                {orgTab === 'Overview' && (
+                                    <Organization filters={orgFilterValues} />
+                                )}
                                 {orgTab !== 'Overview' && (
                                     <div className="tab-placeholder">
                                         <p>Organizations {orgTab} Dashboard</p>

@@ -23,10 +23,8 @@ describe('GET /sustainability', () => {
         );
 
         expect(res.body.avgContributors).toBeCloseTo(
-            reposWithContributors.reduce<number>(
-                (total, repo) => total + Number(repo.contributorCount),
-                0,
-            ) / reposWithContributors.length,
+            reposWithContributors.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                reposWithContributors.length,
         );
         expect(res.body.avgBusFactor).toBeCloseTo(
             sampleRepoData
@@ -98,10 +96,10 @@ describe('GET /sustainability', () => {
                             typeof repo.contributorCount === 'number' &&
                             Number.isFinite(repo.contributorCount),
                     );
-                    return matchingRepos.reduce<number>(
-                        (total, repo) => total + Number(repo.contributorCount),
-                        0,
-                    ) / matchingRepos.length;
+                    return (
+                        matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                        matchingRepos.length
+                    );
                 })(),
             },
             {
@@ -113,10 +111,10 @@ describe('GET /sustainability', () => {
                             typeof repo.contributorCount === 'number' &&
                             Number.isFinite(repo.contributorCount),
                     );
-                    return matchingRepos.reduce<number>(
-                        (total, repo) => total + Number(repo.contributorCount),
-                        0,
-                    ) / matchingRepos.length;
+                    return (
+                        matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                        matchingRepos.length
+                    );
                 })(),
             },
             {
@@ -128,10 +126,10 @@ describe('GET /sustainability', () => {
                             typeof repo.contributorCount === 'number' &&
                             Number.isFinite(repo.contributorCount),
                     );
-                    return matchingRepos.reduce<number>(
-                        (total, repo) => total + Number(repo.contributorCount),
-                        0,
-                    ) / matchingRepos.length;
+                    return (
+                        matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                        matchingRepos.length
+                    );
                 })(),
             },
             {
@@ -143,10 +141,10 @@ describe('GET /sustainability', () => {
                             typeof repo.contributorCount === 'number' &&
                             Number.isFinite(repo.contributorCount),
                     );
-                    return matchingRepos.reduce<number>(
-                        (total, repo) => total + Number(repo.contributorCount),
-                        0,
-                    ) / matchingRepos.length;
+                    return (
+                        matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                        matchingRepos.length
+                    );
                 })(),
             },
             {
@@ -158,10 +156,10 @@ describe('GET /sustainability', () => {
                             typeof repo.contributorCount === 'number' &&
                             Number.isFinite(repo.contributorCount),
                     );
-                    return matchingRepos.reduce<number>(
-                        (total, repo) => total + Number(repo.contributorCount),
-                        0,
-                    ) / matchingRepos.length;
+                    return (
+                        matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                        matchingRepos.length
+                    );
                 })(),
             },
             {
@@ -183,10 +181,8 @@ describe('GET /sustainability', () => {
                     );
                     return matchingRepos.length === 0
                         ? 0
-                        : matchingRepos.reduce<number>(
-                            (total, repo) => total + Number(repo.contributorCount),
-                            0,
-                        ) / matchingRepos.length;
+                        : matchingRepos.reduce<number>((total, repo) => total + Number(repo.contributorCount), 0) /
+                              matchingRepos.length;
                 })(),
             },
         ];

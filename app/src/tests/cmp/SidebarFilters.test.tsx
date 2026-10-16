@@ -45,17 +45,14 @@ describe('SidebarFilters', () => {
             filters.forEach((filter) => {
                 defaults[filter.key] =
                     filter.defaultValue ??
-                    (filter.type === 'slider'
-                        ? 0
-                        : filter.options[0] ?? '');
+                    (filter.type === 'slider' ? 0 : (filter.options[0] ?? ''));
             });
 
             return defaults;
         };
 
-        const [values, setValues] = useState<
-            Record<string, string | number>
-        >(getDefaults);
+        const [values, setValues] =
+            useState<Record<string, string | number>>(getDefaults);
 
         return (
             <SidebarFilters

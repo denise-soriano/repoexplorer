@@ -41,17 +41,14 @@ let sampleRepos: repoData[] = [];
 
 if (runMode === 'EACH' || runMode === 'REPO') {
     const securityRows = await parquetToObjects(
-        (await readParquetFile(await findRecentParquetInDir('SECR'))) ||
-            (await getParquet('SECR')),
+        (await readParquetFile(await findRecentParquetInDir('SECR'))) || (await getParquet('SECR')),
     );
 
     securityUrls = new Set((securityRows as secrData[]).map((row) => row.htmlUrl));
 }
 
 if (runMode === 'SECR') {
-    sampleRepos = JSON.parse(
-        await readFile('data/sample/sampleRepoData.json', 'utf-8'),
-    ) as repoData[];
+    sampleRepos = JSON.parse(await readFile('data/sample/sampleRepoData.json', 'utf-8')) as repoData[];
 }
 
 for (const run of QUEUE) {
@@ -68,24 +65,24 @@ for (const run of QUEUE) {
     // filter to only sample repo data
     const data =
         run === 'REPO'
-        ?  [
-                ...(objs as repoData[]).filter((r) => SAMPLE_REPO_ORGS.includes(r.owner)),
-                ...Array.from(
-                    new Map(
-                        (objs as repoData[])
-                            .filter(
-                                (r) =>
-                                !SAMPLE_REPO_ORGS.includes(r.owner) &&
-                                r.htmlUrl !== null &&
-                                securityUrls.has(r.htmlUrl),
-                            )
-                            .map((r) => [r.htmlUrl, r] as const),
-                    ).values(),
-                ).slice(0, SAMPLE_EXTRA_REPO_LIMIT),
-            ]
-        : run === 'SECR'
-            ? getMatchingSecurityData(sampleRepos, objs as secrData[]).slice(0, SAMPLE_SECURITY_LIMIT)
-            : objs.slice(0, 100);
+            ? [
+                  ...(objs as repoData[]).filter((r) => SAMPLE_REPO_ORGS.includes(r.owner)),
+                  ...Array.from(
+                      new Map(
+                          (objs as repoData[])
+                              .filter(
+                                  (r) =>
+                                      !SAMPLE_REPO_ORGS.includes(r.owner) &&
+                                      r.htmlUrl !== null &&
+                                      securityUrls.has(r.htmlUrl),
+                              )
+                              .map((r) => [r.htmlUrl, r] as const),
+                      ).values(),
+                  ).slice(0, SAMPLE_EXTRA_REPO_LIMIT),
+              ]
+            : run === 'SECR'
+              ? getMatchingSecurityData(sampleRepos, objs as secrData[]).slice(0, SAMPLE_SECURITY_LIMIT)
+              : objs.slice(0, 100);
 
     if (run === 'REPO') {
         sampleRepos = data as repoData[];

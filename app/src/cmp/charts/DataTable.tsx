@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { API_URL } from '../../consts';
 import type { chartProps } from '../../types/charts';

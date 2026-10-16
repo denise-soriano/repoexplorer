@@ -17,13 +17,13 @@ function getHeatmapColor(value: number) {
 
 type HeatmapTableProps = chartProps & {
     filters?: Record<string, string | number>;
-}
+};
 
 export default function HeatmapTable({
     title,
     endpoint,
-    filters = {}
- }: HeatmapTableProps) {
+    filters = {},
+}: HeatmapTableProps) {
     const [data, setData] = useState<barDatum[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const queryString = new URLSearchParams(

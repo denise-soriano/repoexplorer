@@ -13,7 +13,9 @@ export default function Organization({ filters }: OrganizationProps) {
     const [error, setError] = useState<string | null>(null);
     const queryString = new URLSearchParams(
         Object.entries(filters ?? {})
-            .filter(([, value]) => value !== 'All' && value !== '' && value !== 0)
+            .filter(
+                ([, value]) => value !== 'All' && value !== '' && value !== 0,
+            )
             .map(([key, value]) => [key, String(value)]),
     ).toString();
 

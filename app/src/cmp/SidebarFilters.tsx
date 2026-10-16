@@ -8,7 +8,6 @@ export default function SidebarFilters({
     onChange,
     onReset,
 }: sidebarFiltersProps) {
-
     return (
         <aside>
             {filters.map((filter) => {

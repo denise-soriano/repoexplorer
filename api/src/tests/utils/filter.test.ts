@@ -19,43 +19,27 @@ describe('filterData', () => {
     });
 
     test('filters repositories by minimum stars', () => {
-        const result = filterData(
-            repositories,
-            { stargazersCount: '100' },
-            filterableFields,
-        );
+        const result = filterData(repositories, { stargazersCount: '100' }, filterableFields);
 
         expect(result).toHaveLength(2);
         expect(result.every((repo) => repo.stargazersCount >= 100)).toBe(true);
     });
 
     test('filters repositories by language', () => {
-        const result = filterData(
-            repositories,
-            { language: 'Python' },
-            filterableFields,
-        );
+        const result = filterData(repositories, { language: 'Python' }, filterableFields);
 
         expect(result).toHaveLength(2);
     });
 
     test('applies multiple filters together', () => {
-        const result = filterData(
-            repositories,
-            { language: 'Python', stargazersCount: '100' },
-            filterableFields,
-        );
+        const result = filterData(repositories, { language: 'Python', stargazersCount: '100' }, filterableFields);
 
         expect(result).toHaveLength(1);
         expect(result[0].stargazersCount).toBe(300);
     });
 
     test('returns no repositories for an invalid minimum', () => {
-        const result = filterData(
-            repositories,
-            { stargazersCount: 'invalid' },
-            filterableFields,
-        );
+        const result = filterData(repositories, { stargazersCount: 'invalid' }, filterableFields);
 
         expect(result).toHaveLength(0);
     });

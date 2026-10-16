@@ -29,30 +29,31 @@ describe('GET /overview', () => {
         );
         expect(res.body.percentWithLicense).toBeCloseTo((res.body.withLicense / sampleRepoData.length) * 100);
         expect(res.body.totalContributors).toBe(
-            sampleRepoData.reduce<number>(
-                (total, repo) => total + (Number(repo.contributorCount) || 0),
-                0,
-            ),
+            sampleRepoData.reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
         );
         expect(res.body.avgBusFactor).toBeCloseTo(
             sampleRepoData.reduce<number>((total, repo) => total + Number(repo.busFactor ?? 0), 0) /
                 sampleRepoData.length,
         );
-        expect(res.body.reposPerUniversity.reduce(
-            (total: number, university: { name: string; value: number }) => total + university.value,
-            0,
-        )).toBe(sampleRepoData.length);
+        expect(
+            res.body.reposPerUniversity.reduce(
+                (total: number, university: { name: string; value: number }) => total + university.value,
+                0,
+            ),
+        ).toBe(sampleRepoData.length);
         expect(res.body.languageDistribution).toContainEqual({
             name: 'Python',
             value: sampleRepoData.filter((repo) => repo.language === 'Python').length / sampleRepoData.length,
         });
         expect(res.body.licenseDistribution).toContainEqual({
             name: 'mit',
-            value: sampleRepoData.filter((repo) => repo.license?.toLowerCase() === 'mit').length / sampleRepoData.length,
+            value:
+                sampleRepoData.filter((repo) => repo.license?.toLowerCase() === 'mit').length / sampleRepoData.length,
         });
         expect(res.body.typeDistribution).toContainEqual({
             name: 'DEV',
-            value: sampleRepoData.filter((repo) => repo.typePredictionGpt5Mini === 'DEV').length / sampleRepoData.length,
+            value:
+                sampleRepoData.filter((repo) => repo.typePredictionGpt5Mini === 'DEV').length / sampleRepoData.length,
         });
     });
 
@@ -69,44 +70,38 @@ describe('GET /overview', () => {
         const cases = [
             {
                 query: { university: 'saint louis university' },
-                totalRepos: sampleRepoData.filter(
-                    (repo) => repo.university?.toLowerCase() === 'saint louis university',
-                ).length,
+                totalRepos: sampleRepoData.filter((repo) => repo.university?.toLowerCase() === 'saint louis university')
+                    .length,
                 totalContributors: sampleRepoData
                     .filter((repo) => repo.university?.toLowerCase() === 'saint louis university')
                     .reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
             },
             {
-            query: { language: 'PYTHON' },
-            totalRepos: sampleRepoData.filter(
-                (repo) => repo.language?.toLowerCase() === 'python',
-            ).length,
-            totalContributors: sampleRepoData
-                .filter((repo) => repo.language?.toLowerCase() === 'python')
-                .reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
+                query: { language: 'PYTHON' },
+                totalRepos: sampleRepoData.filter((repo) => repo.language?.toLowerCase() === 'python').length,
+                totalContributors: sampleRepoData
+                    .filter((repo) => repo.language?.toLowerCase() === 'python')
+                    .reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
             },
             {
                 query: { license: 'MIT' },
-                totalRepos: sampleRepoData.filter(
-                    (repo) => repo.license?.toLowerCase() === 'mit',
-                ).length,
+                totalRepos: sampleRepoData.filter((repo) => repo.license?.toLowerCase() === 'mit').length,
                 totalContributors: sampleRepoData
                     .filter((repo) => repo.license?.toLowerCase() === 'mit')
                     .reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
             },
             {
                 query: { typePredictionGpt5Mini: 'dev' },
-                totalRepos: sampleRepoData.filter(
-                    (repo) => repo.typePredictionGpt5Mini?.toLowerCase() === 'dev',
-                ).length,
+                totalRepos: sampleRepoData.filter((repo) => repo.typePredictionGpt5Mini?.toLowerCase() === 'dev')
+                    .length,
                 totalContributors: sampleRepoData
                     .filter((repo) => repo.typePredictionGpt5Mini?.toLowerCase() === 'dev')
                     .reduce<number>((total, repo) => total + (Number(repo.contributorCount) || 0), 0),
             },
             {
                 query: { language: ['PYTHON', 'javascript'] },
-                totalRepos: sampleRepoData.filter(
-                    (repo) => ['python', 'javascript'].includes(repo.language?.toLowerCase() ?? ''),
+                totalRepos: sampleRepoData.filter((repo) =>
+                    ['python', 'javascript'].includes(repo.language?.toLowerCase() ?? ''),
                 ).length,
                 totalContributors: sampleRepoData
                     .filter((repo) => ['python', 'javascript'].includes(repo.language?.toLowerCase() ?? ''))

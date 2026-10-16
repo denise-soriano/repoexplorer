@@ -14,22 +14,14 @@ export function filterData<T extends Record<string, unknown>>(
             const rowValue = row[field as keyof T];
 
             if (mode === 'exact') {
-                return value.some(
-                    (v) =>
-                        String(v).toLowerCase() ===
-                        String(rowValue).toLowerCase()
-                );
+                return value.some((v) => String(v).toLowerCase() === String(rowValue).toLowerCase());
             }
 
             if (mode === 'min') {
                 const minValue = Number(value[0]);
                 const numericRowValue = Number(rowValue);
 
-                if (
-                    !Number.isFinite(minValue) ||
-                    rowValue == null ||
-                    !Number.isFinite(numericRowValue)
-                ) {
+                if (!Number.isFinite(minValue) || rowValue == null || !Number.isFinite(numericRowValue)) {
                     return false;
                 }
 
