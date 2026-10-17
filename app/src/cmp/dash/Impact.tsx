@@ -28,7 +28,7 @@ export default function Impact({ filters }: ImpactProps) {
         }
     });
 
-const queryParams = queryString.toString();
+    const queryParams = queryString.toString();
     useEffect(() => {
         const controller = new AbortController();
 

@@ -44,16 +44,14 @@ describe('SidebarFilters', () => {
 
             filters.forEach((filter) => {
                 defaults[filter.key] =
-                    filter.defaultValue ??
-                    (filter.type === 'slider' ? 0 : []);
+                    filter.defaultValue ?? (filter.type === 'slider' ? 0 : []);
             });
 
             return defaults;
         };
 
-        const [values, setValues] = useState<
-            Record<string, string[] | number>
-        >(getDefaults);
+        const [values, setValues] =
+            useState<Record<string, string[] | number>>(getDefaults);
 
         return (
             <SidebarFilters
@@ -102,9 +100,7 @@ describe('SidebarFilters', () => {
             screen.getByRole('textbox', { name: 'Search Language' }),
         );
 
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Java' }),
-        );
+        fireEvent.click(screen.getByRole('button', { name: 'Java' }));
 
         fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
@@ -126,9 +122,7 @@ describe('SidebarFilters', () => {
             screen.getByRole('textbox', { name: 'Search Language' }),
         );
 
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Python' }),
-    );
+        fireEvent.click(screen.getByRole('button', { name: 'Python' }));
 
         expect(
             screen.getByRole('button', { name: 'Remove Python' }),
@@ -146,9 +140,7 @@ describe('SidebarFilters', () => {
             screen.getByRole('textbox', { name: 'Search Language' }),
         );
 
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Python' }),
-        );
+        fireEvent.click(screen.getByRole('button', { name: 'Python' }));
 
         fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
 

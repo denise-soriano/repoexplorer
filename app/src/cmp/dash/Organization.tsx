@@ -12,15 +12,15 @@ export default function Organization({ filters }: OrganizationProps) {
     const [summary, setSummary] = useState<organizationSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
     const queryString = new URLSearchParams();
-        Object.entries(filters ?? {}).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-        value.forEach((selected) => queryString.append(key, selected));
-    } else if (value !== 0) {
-        queryString.append(key, String(value));
-    }
-});
+    Object.entries(filters ?? {}).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
 
-const queryParams = queryString.toString();
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         (async () => {

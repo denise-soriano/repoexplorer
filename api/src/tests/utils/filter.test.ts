@@ -32,11 +32,7 @@ describe('filterData', () => {
     });
 
     test('filters repositories by multiple languages', () => {
-        const result = filterData(
-            repositories,
-            { language: ['Python', 'JavaScript'] },
-            filterableFields,
-        );
+        const result = filterData(repositories, { language: ['Python', 'JavaScript'] }, filterableFields);
 
         expect(result).toHaveLength(3);
         expect(result.map((repo) => repo.language)).toContain('Python');

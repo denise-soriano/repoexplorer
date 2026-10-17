@@ -35,9 +35,7 @@ describe('TextDropdownFilter', () => {
             screen.getByRole('textbox', { name: 'Search Language' }),
         );
 
-        fireEvent.click(
-            screen.getByRole('button', { name: 'Python' }),
-        );
+        fireEvent.click(screen.getByRole('button', { name: 'Python' }));
 
         expect(handleChange).toHaveBeenCalledWith(['JavaScript', 'Python']);
     });

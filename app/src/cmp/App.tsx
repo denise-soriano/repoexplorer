@@ -110,7 +110,9 @@ const ORG_FILTERS = [
     },
 ];
 
-const getDefaultValues = (filters: typeof REPO_FILTERS | typeof ORG_FILTERS) => {
+const getDefaultValues = (
+    filters: typeof REPO_FILTERS | typeof ORG_FILTERS,
+) => {
     const defaults: Record<string, string[] | number> = {};
 
     filters.forEach((filter) => {

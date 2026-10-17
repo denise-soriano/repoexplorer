@@ -17,7 +17,7 @@ function getHeatmapColor(value: number) {
 
 type HeatmapTableProps = chartProps & {
     filters?: Record<string, string[] | number>;
-}
+};
 
 export default function HeatmapTable({
     title,

@@ -31,7 +31,7 @@ export default function TextDropdownFilter({
     const filteredOptions = options.filter(
         (option) =>
             option.toLowerCase().includes(search.toLowerCase()) &&
-            !value.includes(option)
+            !value.includes(option),
     );
 
     const addOption = (option: string) => {
@@ -141,9 +141,7 @@ export default function TextDropdownFilter({
                         </button>
                     ))}
 
-                    {filteredOptions.length === 0 && (
-                        <p>No matching options</p>
-                    )}
+                    {filteredOptions.length === 0 && <p>No matching options</p>}
                 </div>
             )}
         </div>

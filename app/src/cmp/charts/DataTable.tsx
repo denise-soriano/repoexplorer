@@ -24,7 +24,7 @@ export default function DataTable({
             value.forEach((selected) => queryString.append(key, selected));
         } else if (value !== 0) {
             queryString.append(key, String(value));
-    }
+        }
     });
 
     const queryParams = queryString.toString();
