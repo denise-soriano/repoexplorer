@@ -8,13 +8,15 @@ describe('TextDropdownFilter', () => {
             <TextDropdownFilter
                 label="Language"
                 options={['JavaScript', 'Python', 'Java']}
-                value="JavaScript"
+                value={['JavaScript']}
                 onChange={() => {}}
             />,
         );
 
         expect(screen.getByText('Language')).toBeInTheDocument();
-        expect(screen.getByRole('combobox')).toBeInTheDocument();
+        expect(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        ).toBeInTheDocument();
     });
 
     it('calls onChange when the user selects an option', () => {
@@ -24,16 +26,20 @@ describe('TextDropdownFilter', () => {
             <TextDropdownFilter
                 label="Language"
                 options={['JavaScript', 'Python', 'Java']}
-                value="JavaScript"
+                value={['JavaScript']}
                 onChange={handleChange}
             />,
         );
 
-        fireEvent.change(screen.getByRole('combobox'), {
-            target: { value: 'Python' },
-        });
+        fireEvent.focus(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        );
 
-        expect(handleChange).toHaveBeenCalledWith('Python');
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Python' }),
+        );
+
+        expect(handleChange).toHaveBeenCalledWith(['JavaScript', 'Python']);
     });
 
     it('renders the provided options', () => {
@@ -41,21 +47,25 @@ describe('TextDropdownFilter', () => {
             <TextDropdownFilter
                 label="Language"
                 options={['JavaScript', 'Python', 'Java']}
-                value="JavaScript"
+                value={['JavaScript']}
                 onChange={() => {}}
             />,
         );
 
         expect(
-            screen.getByRole('option', { name: 'JavaScript' }),
+            screen.getByRole('button', { name: 'Remove JavaScript' }),
+        ).toBeInTheDocument();
+
+        fireEvent.focus(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        );
+
+        expect(
+            screen.getByRole('button', { name: 'Python' }),
         ).toBeInTheDocument();
 
         expect(
-            screen.getByRole('option', { name: 'Python' }),
-        ).toBeInTheDocument();
-
-        expect(
-            screen.getByRole('option', { name: 'Java' }),
+            screen.getByRole('button', { name: 'Java' }),
         ).toBeInTheDocument();
     });
 });

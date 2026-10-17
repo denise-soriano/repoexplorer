@@ -16,8 +16,8 @@ function getHeatmapColor(value: number) {
 }
 
 type HeatmapTableProps = chartProps & {
-    filters?: Record<string, string | number>;
-};
+    filters?: Record<string, string[] | number>;
+}
 
 export default function HeatmapTable({
     title,
@@ -26,11 +26,17 @@ export default function HeatmapTable({
 }: HeatmapTableProps) {
     const [data, setData] = useState<barDatum[] | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         if (!endpoint) return;
@@ -43,7 +49,7 @@ export default function HeatmapTable({
                 setData(null);
 
                 const res = await fetch(
-                    `${API_URL}/${endpoint}${queryString ? `?${queryString}` : ''}`,
+                    `${API_URL}/${endpoint}${queryParams ? `?${queryParams}` : ''}`,
                     {
                         signal: controller.signal,
                     },
@@ -73,7 +79,7 @@ export default function HeatmapTable({
         void fetchData();
 
         return () => controller.abort();
-    }, [endpoint, queryString]);
+    }, [endpoint, queryParams]);
 
     if (error) {
         return (

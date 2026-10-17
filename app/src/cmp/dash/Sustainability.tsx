@@ -31,17 +31,23 @@ function getHeatmapColor(value: number) {
 }
 
 type SustainabilityProps = {
-    filters: Record<string, string | number>;
+    filters: Record<string, string[] | number>;
 };
 
 export default function Sustainability({ filters }: SustainabilityProps) {
     const [summary, setSummary] = useState<sustainabilitySummary | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         const controller = new AbortController();
@@ -52,7 +58,7 @@ export default function Sustainability({ filters }: SustainabilityProps) {
                 setSummary(null);
 
                 const resp = await fetch(
-                    `${API_URL}/sustainability?${queryString}`,
+                    `${API_URL}/sustainability?${queryParams}`,
                     {
                         signal: controller.signal,
                     },
@@ -86,7 +92,7 @@ export default function Sustainability({ filters }: SustainabilityProps) {
         void fetchData();
 
         return () => controller.abort();
-    }, [queryString]);
+    }, [queryParams]);
 
     if (error) {
         return <div>Failed to load sustainability: {error}</div>;

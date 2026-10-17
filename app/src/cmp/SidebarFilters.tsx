@@ -36,11 +36,9 @@ export default function SidebarFilters({
                         label={filter.label}
                         options={filter.options}
                         value={
-                            typeof currentValue === 'string'
+                            Array.isArray(currentValue)
                                 ? currentValue
-                                : (filter.defaultValue ??
-                                  filter.options[0] ??
-                                  '')
+                                : (filter.defaultValue ?? [])
                         }
                         onChange={(value) => onChange(filter.key, value)}
                     />

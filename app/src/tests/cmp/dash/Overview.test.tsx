@@ -105,7 +105,7 @@ describe('Overview', () => {
             expect(fetchMock).toHaveBeenCalledTimes(1);
         });
 
-        rerender(<Overview filters={{ language: 'Python' }} />);
+        rerender(<Overview filters={{ language: ['Python'] }} />);
 
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalledTimes(2);

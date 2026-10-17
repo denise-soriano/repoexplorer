@@ -7,18 +7,24 @@ import DataTable from '../charts/DataTable';
 import PieChartDiv from '../charts/PieChartDiv';
 
 type OverviewProps = {
-    filters: Record<string, string | number>;
+    filters: Record<string, string[] | number>;
 };
 
 export default function Overview({ filters }: OverviewProps) {
     const [summary, setSummary] = useState<overviewSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         const controller = new AbortController();
@@ -27,7 +33,7 @@ export default function Overview({ filters }: OverviewProps) {
             try {
                 setError(null);
 
-                const resp = await fetch(`${API_URL}/overview?${queryString}`, {
+                const resp = await fetch(`${API_URL}/overview?${queryParams}`, {
                     signal: controller.signal,
                 });
 
@@ -55,7 +61,7 @@ export default function Overview({ filters }: OverviewProps) {
         void fetchOverview();
 
         return () => controller.abort();
-    }, [queryString]);
+    }, [queryParams]);
 
     if (error) {
         return <div>Failed to load overview: {error}</div>;

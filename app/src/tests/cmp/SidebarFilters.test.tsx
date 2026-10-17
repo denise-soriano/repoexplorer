@@ -34,25 +34,26 @@ describe('SidebarFilters', () => {
             label: 'Language',
             type: 'text',
             options: ['JavaScript', 'Python', 'Java'],
-            defaultValue: 'Python',
+            defaultValue: ['Python'],
         },
     ];
 
     function TestSidebar({ filters }: { filters: filterConfig[] }) {
         const getDefaults = () => {
-            const defaults: Record<string, string | number> = {};
+            const defaults: Record<string, string[] | number> = {};
 
             filters.forEach((filter) => {
                 defaults[filter.key] =
                     filter.defaultValue ??
-                    (filter.type === 'slider' ? 0 : (filter.options[0] ?? ''));
+                    (filter.type === 'slider' ? 0 : []);
             });
 
             return defaults;
         };
 
-        const [values, setValues] =
-            useState<Record<string, string | number>>(getDefaults);
+        const [values, setValues] = useState<
+            Record<string, string[] | number>
+        >(getDefaults);
 
         return (
             <SidebarFilters
@@ -75,7 +76,9 @@ describe('SidebarFilters', () => {
         expect(screen.getByText('Stars: 0')).toBeInTheDocument();
         expect(screen.getByText('Language')).toBeInTheDocument();
         expect(screen.getByRole('slider')).toBeInTheDocument();
-        expect(screen.getByRole('combobox')).toBeInTheDocument();
+        expect(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        ).toBeInTheDocument();
         expect(
             screen.getByRole('button', { name: 'Reset' }),
         ).toBeInTheDocument();
@@ -85,7 +88,7 @@ describe('SidebarFilters', () => {
         render(<TestSidebar filters={filtersWithDefaults} />);
 
         expect(screen.getByText('Stars: 25')).toBeInTheDocument();
-        expect(screen.getByRole('combobox')).toHaveValue('Python');
+        expect(screen.getByText('Python')).toBeInTheDocument();
     });
 
     it('resets to the provided default values', () => {
@@ -95,14 +98,21 @@ describe('SidebarFilters', () => {
             target: { value: '50' },
         });
 
-        fireEvent.change(screen.getByRole('combobox'), {
-            target: { value: 'Java' },
-        });
+        fireEvent.focus(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        );
+
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Java' }),
+        );
 
         fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
         expect(screen.getByText('Stars: 25')).toBeInTheDocument();
-        expect(screen.getByRole('combobox')).toHaveValue('Python');
+        expect(screen.getByText('Python')).toBeInTheDocument();
+        expect(
+            screen.queryByRole('button', { name: 'Remove Java' }),
+        ).not.toBeInTheDocument();
     });
 
     it('updates the filter values when they change', () => {
@@ -112,13 +122,17 @@ describe('SidebarFilters', () => {
             target: { value: '50' },
         });
 
-        expect(screen.getByText('Stars: 50')).toBeInTheDocument();
+        fireEvent.focus(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        );
 
-        fireEvent.change(screen.getByRole('combobox'), {
-            target: { value: 'Python' },
-        });
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Python' }),
+    );
 
-        expect(screen.getByRole('combobox')).toHaveValue('Python');
+        expect(
+            screen.getByRole('button', { name: 'Remove Python' }),
+        ).toBeInTheDocument();
     });
 
     it('resets the filter values', () => {
@@ -128,13 +142,20 @@ describe('SidebarFilters', () => {
             target: { value: '50' },
         });
 
-        fireEvent.change(screen.getByRole('combobox'), {
-            target: { value: 'Python' },
-        });
+        fireEvent.focus(
+            screen.getByRole('textbox', { name: 'Search Language' }),
+        );
+
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Python' }),
+        );
 
         fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
         expect(screen.getByText('Stars: 0')).toBeInTheDocument();
-        expect(screen.getByRole('combobox')).toHaveValue('JavaScript');
+
+        expect(
+            screen.queryByRole('button', { name: 'Remove Python' }),
+        ).not.toBeInTheDocument();
     });
 });

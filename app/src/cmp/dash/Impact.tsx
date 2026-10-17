@@ -12,18 +12,23 @@ type impactSummary = {
 };
 
 type ImpactProps = {
-    filters: Record<string, string | number>;
+    filters: Record<string, string[] | number>;
 };
 
 export default function Impact({ filters }: ImpactProps) {
     const [summary, setSummary] = useState<impactSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
 
+    Object.entries(filters ?? {}).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+const queryParams = queryString.toString();
     useEffect(() => {
         const controller = new AbortController();
 
@@ -32,7 +37,7 @@ export default function Impact({ filters }: ImpactProps) {
                 setError(null);
                 setSummary(null);
 
-                const resp = await fetch(`${API_URL}/impact?${queryString}`, {
+                const resp = await fetch(`${API_URL}/impact?${queryParams}`, {
                     signal: controller.signal,
                 });
 
@@ -64,7 +69,7 @@ export default function Impact({ filters }: ImpactProps) {
         void fetchData();
 
         return () => controller.abort();
-    }, [queryString]);
+    }, [queryParams]);
 
     if (error) {
         return <div>Failed to load impact dashboard: {error}</div>;

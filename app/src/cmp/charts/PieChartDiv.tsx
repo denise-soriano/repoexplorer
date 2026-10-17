@@ -15,18 +15,24 @@ export default function PieChartDiv({
     endpoint,
     filters = {},
 }: chartProps & {
-    filters?: Record<string, string | number>;
+    filters?: Record<string, string[] | number>;
 }) {
     const [data, setData] = useState<{ name: string; value: number }[] | null>(
         null,
     );
     const [error, setError] = useState<string | null>(null);
 
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         const controller = new AbortController();
@@ -37,7 +43,7 @@ export default function PieChartDiv({
                 setData(null);
 
                 const url = `${API_URL}/${endpoint}${
-                    queryString ? `?${queryString}` : ''
+                    queryParams ? `?${queryParams}` : ''
                 }`;
 
                 const resp = await fetch(url, {
@@ -79,7 +85,7 @@ export default function PieChartDiv({
         void fetchData();
 
         return () => controller.abort();
-    }, [endpoint, queryString]);
+    }, [endpoint, queryParams]);
 
     if (error)
         return (

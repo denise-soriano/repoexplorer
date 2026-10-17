@@ -31,6 +31,18 @@ describe('filterData', () => {
         expect(result).toHaveLength(2);
     });
 
+    test('filters repositories by multiple languages', () => {
+        const result = filterData(
+            repositories,
+            { language: ['Python', 'JavaScript'] },
+            filterableFields,
+        );
+
+        expect(result).toHaveLength(3);
+        expect(result.map((repo) => repo.language)).toContain('Python');
+        expect(result.map((repo) => repo.language)).toContain('JavaScript');
+    });
+
     test('applies multiple filters together', () => {
         const result = filterData(repositories, { language: 'Python', stargazersCount: '100' }, filterableFields);
 

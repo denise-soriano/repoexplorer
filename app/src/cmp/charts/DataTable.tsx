@@ -11,17 +11,23 @@ export default function DataTable({
     filters = {},
 }: chartProps & {
     scrollable?: boolean;
-    filters?: Record<string, string | number>;
+    filters?: Record<string, string[] | number>;
 }) {
     const [data, setData] = useState<Record<string, unknown>[]>([]);
     const [loading, setLoading] = useState<boolean>(Boolean(endpoint));
     const [error, setError] = useState<string>('');
 
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(([, value]) => value !== 'All' && value !== '')
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+    }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         if (!endpoint) {
@@ -36,7 +42,7 @@ export default function DataTable({
                 setError('');
 
                 const url = `${API_URL}/${endpoint}${
-                    queryString ? `?${queryString}` : ''
+                    queryParams ? `?${queryParams}` : ''
                 }`;
 
                 const resp = await fetch(url, {
@@ -77,7 +83,7 @@ export default function DataTable({
         void fetchData();
 
         return () => controller.abort();
-    }, [endpoint, queryString]);
+    }, [endpoint, queryParams]);
 
     if (loading) {
         return <div>Loading {title}...</div>;

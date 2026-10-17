@@ -12,15 +12,15 @@ export type textFilterConfig = {
     label: string;
     type: 'text';
     options: string[];
-    defaultValue?: string;
+    defaultValue?: string[];
 };
 
 export type filterConfig = sliderFilterConfig | textFilterConfig;
 
 export type sidebarFiltersProps = {
     filters: filterConfig[];
-    values: Record<string, string | number>;
-    onChange: (key: string, value: string | number) => void;
+    values: Record<string, string[] | number>;
+    onChange: (key: string, value: string[] | number) => void;
     onReset: () => void;
 };
 
@@ -35,6 +35,6 @@ export type sliderFilterProps = {
 export type textDropdownFilterProps = {
     label: string;
     options: string[];
-    value: string;
-    onChange: (value: string) => void;
+    value: string[];
+    onChange: (value: string[]) => void;
 };

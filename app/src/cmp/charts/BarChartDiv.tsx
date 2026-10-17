@@ -22,18 +22,22 @@ export default function BarChartDiv({
     seriesLabels,
     filters = {},
 }: chartProps & {
-    filters?: Record<string, string | number>;
+    filters?: Record<string, string[] | number>;
 }) {
     const [data, setData] = useState<barDatum[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const queryString = new URLSearchParams(
-        Object.entries(filters)
-            .filter(
-                ([, value]) => value !== 'All' && value !== '' && value !== 0,
-            )
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         if (!endpoint) return;
@@ -46,7 +50,7 @@ export default function BarChartDiv({
                 setData(null);
 
                 const url = `${API_URL}/${endpoint}${
-                    queryString ? `?${queryString}` : ''
+                    queryParams ? `?${queryParams}` : ''
                 }`;
 
                 const res = await fetch(url, {
@@ -82,7 +86,7 @@ export default function BarChartDiv({
         void fetchData();
 
         return () => controller.abort();
-    }, [endpoint, queryString]);
+    }, [endpoint, queryParams]);
 
     if (error)
         return (

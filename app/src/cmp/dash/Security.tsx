@@ -2,7 +2,7 @@ import HeatmapTable from '../charts/HeatmapTable';
 import DataTable from '../charts/DataTable';
 
 type SecurityProps = {
-    filters: Record<string, string | number>;
+    filters: Record<string, string[] | number>;
 };
 
 export default function Security({ filters }: SecurityProps) {

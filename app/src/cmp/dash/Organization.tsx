@@ -5,25 +5,28 @@ import BarChartDiv from '../charts/BarChartDiv';
 import DataBlock from '../charts/DataBlock';
 
 type OrganizationProps = {
-    filters?: Record<string, string | number>;
+    filters?: Record<string, string[] | number>;
 };
 
 export default function Organization({ filters }: OrganizationProps) {
     const [summary, setSummary] = useState<organizationSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const queryString = new URLSearchParams(
-        Object.entries(filters ?? {})
-            .filter(
-                ([, value]) => value !== 'All' && value !== '' && value !== 0,
-            )
-            .map(([key, value]) => [key, String(value)]),
-    ).toString();
+    const queryString = new URLSearchParams();
+        Object.entries(filters ?? {}).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+        value.forEach((selected) => queryString.append(key, selected));
+    } else if (value !== 0) {
+        queryString.append(key, String(value));
+    }
+});
+
+const queryParams = queryString.toString();
 
     useEffect(() => {
         (async () => {
             try {
                 const resp = await fetch(
-                    `${API_URL}/organization${queryString ? `?${queryString}` : ''}`,
+                    `${API_URL}/organization${queryParams ? `?${queryParams}` : ''}`,
                 );
 
                 if (!resp.ok) {
@@ -43,7 +46,7 @@ export default function Organization({ filters }: OrganizationProps) {
                 );
             }
         })();
-    }, [queryString]);
+    }, [queryParams]);
 
     if (error) {
         return <div>Failed to load organization: {error}</div>;

@@ -25,40 +25,38 @@ const REPO_FILTERS = [
         label: 'University',
         type: 'text' as const,
         options: [
-            'All',
             'Saint Louis University',
             'University of California, Santa Cruz',
             'University of California, Santa Barbara',
         ],
-        defaultValue: 'All',
+        defaultValue: [],
     },
     {
         key: 'typePredictionGpt5Mini',
         label: 'Project Type',
         type: 'text' as const,
-        options: ['All', 'DEV', 'EDU', 'WEB', 'DOCS'],
-        defaultValue: 'All',
+        options: ['DEV', 'EDU', 'WEB', 'DOCS'],
+        defaultValue: [],
     },
     {
         key: 'license',
         label: 'License',
         type: 'text' as const,
         options: [
-            'All',
             'mit',
             'apache-2.0',
             'gpl-3.0',
             'bsd-3-clause',
             'cc-by-sa-4.0',
         ],
-        defaultValue: 'All',
+        defaultValue: [],
     },
     {
         key: 'language',
         label: 'Primary Language',
         type: 'text' as const,
-        options: ['All', 'TypeScript', 'JavaScript', 'Python', 'C++'],
-        defaultValue: 'All',
+        options: ['TypeScript', 'JavaScript', 'Python', 'C++'],
+        defaultValue: [],
     },
     {
         key: 'affiliationPredictionGpt5Mini',
@@ -99,8 +97,8 @@ const ORG_FILTERS = [
         key: 'university',
         label: 'University',
         type: 'text' as const,
-        options: ['All', 'GWU'],
-        defaultValue: 'All',
+        options: ['GWU'],
+        defaultValue: [],
     },
     {
         key: 'affiliationPredictionOrgs',
@@ -112,10 +110,8 @@ const ORG_FILTERS = [
     },
 ];
 
-const getDefaultValues = (
-    filters: typeof REPO_FILTERS | typeof ORG_FILTERS,
-) => {
-    const defaults: Record<string, string | number> = {};
+const getDefaultValues = (filters: typeof REPO_FILTERS | typeof ORG_FILTERS) => {
+    const defaults: Record<string, string[] | number> = {};
 
     filters.forEach((filter) => {
         defaults[filter.key] = filter.defaultValue;
@@ -131,11 +127,11 @@ function App() {
     const [filtersOpen, setFiltersOpen] = useState(true);
 
     const [repoFilterValues, setRepoFilterValues] = useState<
-        Record<string, string | number>
+        Record<string, string[] | number>
     >(() => getDefaultValues(REPO_FILTERS));
 
     const [orgFilterValues, setOrgFilterValues] = useState<
-        Record<string, string | number>
+        Record<string, string[] | number>
     >(() => getDefaultValues(ORG_FILTERS));
 
     return (
