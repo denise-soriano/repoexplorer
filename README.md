@@ -1,4 +1,4 @@
-# [oss-orb](https://github.com/oss-slu/repoexplorer.git): [repoexplorer](https://github.com/UC-USPO-Nework/repoexplorer.git) fork by [Open Source with SLU](https://oss-slu.github.io)
+# [repoexplorer](https://github.com/UC-USPO-Nework/repoexplorer.git) fork by [Open Source with SLU](https://oss-slu.github.io)
 ## Open Source Repository Browser
 - Building a modern web architecture around the work originally done by the [UC OSPO Network](https://ucospo.net)
 - Read UC OSPO's [original about.md file](docs/about.md)
