@@ -10,9 +10,7 @@ export default function SidebarFilters({
 }: sidebarFiltersProps) {
     return (
         <aside className="sidebar-filters">
-            <div className="sidebar-filter-heading">
-                Manual Filters
-            </div>
+            <div className="sidebar-filter-heading">Manual Filters</div>
             <div className="sidebar-filter-list">
                 {filters.map((filter) => {
                     const currentValue = values[filter.key];
