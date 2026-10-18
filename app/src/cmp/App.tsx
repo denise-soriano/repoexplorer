@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NavBar from './NavBar';
 import Overview from './dash/Overview';
 import Security from './dash/Security';
@@ -8,6 +8,7 @@ import Impact from './dash/Impact';
 import aboutText from '../../../docs/about.md?raw';
 import Markdown from 'react-markdown';
 import SidebarFilters from './SidebarFilters';
+import { API_URL } from '../consts';
 
 const MAIN_PAGES = ['About', 'Repositories', 'Organizations'];
 const REPO_TABS = [
@@ -127,6 +128,35 @@ function App() {
     const [repoTab, setRepoTab] = useState('Overview');
     const [orgTab, setOrgTab] = useState('Overview');
     const [filtersOpen, setFiltersOpen] = useState(true);
+    const [universityOptions, setUniversityOptions] = useState<string[]>([]);
+
+    useEffect(() => {
+    const fetchUniversities = async () => {
+        try {
+            const response = await fetch(
+                `${API_URL}/overview/reposPerUniversity`,
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch universities');
+            }
+
+            const data: {
+                reposPerUniversity: { name: string; value: number }[];
+            } = await response.json();
+
+            const universities = data.reposPerUniversity
+                .map((item) => item.name)
+                .sort((a, b) => a.localeCompare(b));
+
+            setUniversityOptions(universities);
+        } catch (error) {
+            console.error('Error fetching universities:', error);
+        }
+    };
+
+    void fetchUniversities();
+}, []);
 
     const [repoFilterValues, setRepoFilterValues] = useState<
         Record<string, string[] | number>
@@ -172,7 +202,11 @@ function App() {
 
                             {filtersOpen && (
                                 <SidebarFilters
-                                    filters={REPO_FILTERS}
+                                    filters={REPO_FILTERS.map((filter) =>
+                                        filter.key === 'university'
+                                            ? { ...filter, options: universityOptions }
+                                            : filter,
+                            )}
                                     values={repoFilterValues}
                                     onChange={(key, value) =>
                                         setRepoFilterValues((previous) => ({

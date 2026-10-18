@@ -136,6 +136,8 @@ export default function TextDropdownFilter({
                         flexDirection: 'column',
                         gap: '4px',
                         marginTop: '4px',
+                        maxHeight: '200px',
+                        overflowY: 'auto',
                     }}
                 >
                     {filteredOptions.map((option) => (
