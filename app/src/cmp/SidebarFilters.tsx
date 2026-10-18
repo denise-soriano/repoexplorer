@@ -9,44 +9,53 @@ export default function SidebarFilters({
     onReset,
 }: sidebarFiltersProps) {
     return (
-        <aside>
-            {filters.map((filter) => {
-                const currentValue = values[filter.key];
+        <aside className="sidebar-filters">
+            <div className="sidebar-filter-heading">Manual Filters</div>
+            <div className="sidebar-filter-list">
+                {filters.map((filter) => {
+                    const currentValue = values[filter.key];
 
-                if (filter.type === 'slider') {
                     return (
-                        <SliderFilter
-                            key={filter.key}
-                            label={filter.label}
-                            min={filter.min}
-                            max={filter.max}
-                            value={
-                                typeof currentValue === 'number'
-                                    ? currentValue
-                                    : (filter.defaultValue ?? 0)
-                            }
-                            onChange={(value) => onChange(filter.key, value)}
-                        />
+                        <div className="sidebar-filter-item" key={filter.key}>
+                            {filter.type === 'slider' ? (
+                                <SliderFilter
+                                    label={filter.label}
+                                    min={filter.min}
+                                    max={filter.max}
+                                    value={
+                                        typeof currentValue === 'number'
+                                            ? currentValue
+                                            : (filter.defaultValue ?? 0)
+                                    }
+                                    onChange={(value) =>
+                                        onChange(filter.key, value)
+                                    }
+                                />
+                            ) : (
+                                <TextDropdownFilter
+                                    label={filter.label}
+                                    options={filter.options}
+                                    value={
+                                        Array.isArray(currentValue)
+                                            ? currentValue
+                                            : (filter.defaultValue ?? [])
+                                    }
+                                    onChange={(value) =>
+                                        onChange(filter.key, value)
+                                    }
+                                />
+                            )}
+                        </div>
                     );
-                }
+                })}
+            </div>
 
-                return (
-                    <TextDropdownFilter
-                        key={filter.key}
-                        label={filter.label}
-                        options={filter.options}
-                        value={
-                            Array.isArray(currentValue)
-                                ? currentValue
-                                : (filter.defaultValue ?? [])
-                        }
-                        onChange={(value) => onChange(filter.key, value)}
-                    />
-                );
-            })}
-
-            <button type="button" onClick={() => onReset()}>
-                Reset
+            <button
+                type="button"
+                className="sidebar-reset-button"
+                onClick={onReset}
+            >
+                Reset All Filters
             </button>
         </aside>
     );

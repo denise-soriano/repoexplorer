@@ -78,7 +78,7 @@ describe('SidebarFilters', () => {
             screen.getByRole('textbox', { name: 'Search Language' }),
         ).toBeInTheDocument();
         expect(
-            screen.getByRole('button', { name: 'Reset' }),
+            screen.getByRole('button', { name: 'Reset All Filters' }),
         ).toBeInTheDocument();
     });
 
@@ -102,7 +102,9 @@ describe('SidebarFilters', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'Java' }));
 
-        fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Reset All Filters' }),
+        );
 
         expect(screen.getByText('Stars: 25')).toBeInTheDocument();
         expect(screen.getByText('Python')).toBeInTheDocument();
@@ -142,7 +144,9 @@ describe('SidebarFilters', () => {
 
         fireEvent.click(screen.getByRole('button', { name: 'Python' }));
 
-        fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Reset All Filters' }),
+        );
 
         expect(screen.getByText('Stars: 0')).toBeInTheDocument();
 
