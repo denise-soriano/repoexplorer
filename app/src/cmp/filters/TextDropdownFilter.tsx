@@ -53,7 +53,9 @@ export default function TextDropdownFilter({
         return (
             <>
                 {option.slice(0, matchIndex)}
-                <mark>{option.slice(matchIndex, matchIndex + search.length)}</mark>
+                <mark>
+                    {option.slice(matchIndex, matchIndex + search.length)}
+                </mark>
                 {option.slice(matchIndex + search.length)}
             </>
         );
