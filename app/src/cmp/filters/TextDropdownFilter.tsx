@@ -43,6 +43,22 @@ export default function TextDropdownFilter({
         onChange(value.filter((selected) => selected !== option));
     };
 
+    const highlightMatch = (option: string) => {
+        if (!search) return option;
+
+        const matchIndex = option.toLowerCase().indexOf(search.toLowerCase());
+
+        if (matchIndex === -1) return option;
+
+        return (
+            <>
+                {option.slice(0, matchIndex)}
+                <mark>{option.slice(matchIndex, matchIndex + search.length)}</mark>
+                {option.slice(matchIndex + search.length)}
+            </>
+        );
+    };
+
     return (
         <div ref={dropdownRef}>
             <label>{label}</label>
@@ -137,7 +153,7 @@ export default function TextDropdownFilter({
                                 overflowWrap: 'anywhere',
                             }}
                         >
-                            {option}
+                            {highlightMatch(option)}
                         </button>
                     ))}
 
