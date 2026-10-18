@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NavBar from './NavBar';
 import Overview from './dash/Overview';
 import Security from './dash/Security';
@@ -8,6 +8,7 @@ import Impact from './dash/Impact';
 import aboutText from '../../../docs/about.md?raw';
 import Markdown from 'react-markdown';
 import SidebarFilters from './SidebarFilters';
+import { API_URL } from '../consts';
 
 const MAIN_PAGES = ['About', 'Repositories', 'Organizations'];
 const REPO_TABS = [
@@ -19,17 +20,72 @@ const REPO_TABS = [
 ];
 const ORG_TABS = ['Overview', 'Browse'];
 
-const DEFAULT_FILTERS = [
+const REPO_FILTERS = [
+    {
+        key: 'university',
+        label: 'University',
+        type: 'text' as const,
+        options: [
+            'Saint Louis University',
+            'University of California, Santa Cruz',
+            'University of California, Santa Barbara',
+        ],
+        defaultValue: [],
+    },
+    {
+        key: 'typePredictionGpt5Mini',
+        label: 'Project Type',
+        type: 'text' as const,
+        options: ['DEV', 'EDU', 'WEB', 'DOCS'],
+        defaultValue: [],
+    },
+    {
+        key: 'license',
+        label: 'License',
+        type: 'text' as const,
+        options: [
+            'mit',
+            'apache-2.0',
+            'gpl-3.0',
+            'bsd-3-clause',
+            'cc-by-sa-4.0',
+        ],
+        defaultValue: [],
+    },
     {
         key: 'language',
         label: 'Primary Language',
         type: 'text' as const,
-        options: ['All', 'TypeScript', 'JavaScript', 'Python', 'C++'],
-        defaultValue: 'All',
+        options: ['TypeScript', 'JavaScript', 'Python', 'C++'],
+        defaultValue: [],
     },
     {
-        key: 'stars',
+        key: 'affiliationPredictionGpt5Mini',
+        label: 'Minimum Prediction Score',
+        type: 'slider' as const,
+        min: 0,
+        max: 1,
+        defaultValue: 0,
+    },
+    {
+        key: 'stargazersCount',
         label: 'Minimum Stars',
+        type: 'slider' as const,
+        min: 0,
+        max: 500,
+        defaultValue: 0,
+    },
+    {
+        key: 'forksCount',
+        label: 'Minimum Forks',
+        type: 'slider' as const,
+        min: 0,
+        max: 500,
+        defaultValue: 0,
+    },
+    {
+        key: 'releaseDownloads',
+        label: 'Minimum Release Downloads',
         type: 'slider' as const,
         min: 0,
         max: 500,
@@ -37,11 +93,78 @@ const DEFAULT_FILTERS = [
     },
 ];
 
+const ORG_FILTERS = [
+    {
+        key: 'university',
+        label: 'University',
+        type: 'text' as const,
+        options: ['GWU'],
+        defaultValue: [],
+    },
+    {
+        key: 'affiliationPredictionOrgs',
+        label: 'Prediction Threshold',
+        type: 'slider' as const,
+        min: 0,
+        max: 1,
+        defaultValue: 0,
+    },
+];
+
+const getDefaultValues = (
+    filters: typeof REPO_FILTERS | typeof ORG_FILTERS,
+) => {
+    const defaults: Record<string, string[] | number> = {};
+
+    filters.forEach((filter) => {
+        defaults[filter.key] = filter.defaultValue;
+    });
+
+    return defaults;
+};
+
 function App() {
     const [page, setPage] = useState('Repositories');
     const [repoTab, setRepoTab] = useState('Overview');
     const [orgTab, setOrgTab] = useState('Overview');
     const [filtersOpen, setFiltersOpen] = useState(true);
+    const [universityOptions, setUniversityOptions] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchUniversities = async () => {
+            try {
+                const response = await fetch(
+                    `${API_URL}/overview/reposPerUniversity`,
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch universities');
+                }
+
+                const data: {
+                    reposPerUniversity: { name: string; value: number }[];
+                } = await response.json();
+
+                const universities = data.reposPerUniversity
+                    .map((item) => item.name)
+                    .sort((a, b) => a.localeCompare(b));
+
+                setUniversityOptions(universities);
+            } catch (error) {
+                console.error('Error fetching universities:', error);
+            }
+        };
+
+        void fetchUniversities();
+    }, []);
+
+    const [repoFilterValues, setRepoFilterValues] = useState<
+        Record<string, string[] | number>
+    >(() => getDefaultValues(REPO_FILTERS));
+
+    const [orgFilterValues, setOrgFilterValues] = useState<
+        Record<string, string[] | number>
+    >(() => getDefaultValues(ORG_FILTERS));
 
     return (
         <main className="container">
@@ -78,7 +201,28 @@ function App() {
                             </button>
 
                             {filtersOpen && (
-                                <SidebarFilters filters={DEFAULT_FILTERS} />
+                                <SidebarFilters
+                                    filters={REPO_FILTERS.map((filter) =>
+                                        filter.key === 'university'
+                                            ? {
+                                                  ...filter,
+                                                  options: universityOptions,
+                                              }
+                                            : filter,
+                                    )}
+                                    values={repoFilterValues}
+                                    onChange={(key, value) =>
+                                        setRepoFilterValues((previous) => ({
+                                            ...previous,
+                                            [key]: value,
+                                        }))
+                                    }
+                                    onReset={() =>
+                                        setRepoFilterValues(
+                                            getDefaultValues(REPO_FILTERS),
+                                        )
+                                    }
+                                />
                             )}
                         </div>
 
@@ -91,12 +235,20 @@ function App() {
                             />
 
                             <div className="tab-view">
-                                {repoTab === 'Overview' && <Overview />}
-                                {repoTab === 'Security' && <Security />}
-                                {repoTab === 'Sustainability' && (
-                                    <Sustainability />
+                                {repoTab === 'Overview' && (
+                                    <Overview filters={repoFilterValues} />
                                 )}
-                                {repoTab === 'Impact' && <Impact />}
+                                {repoTab === 'Security' && (
+                                    <Security filters={repoFilterValues} />
+                                )}
+                                {repoTab === 'Sustainability' && (
+                                    <Sustainability
+                                        filters={repoFilterValues}
+                                    />
+                                )}
+                                {repoTab === 'Impact' && (
+                                    <Impact filters={repoFilterValues} />
+                                )}
                                 {repoTab !== 'Overview' &&
                                     repoTab !== 'Security' &&
                                     repoTab !== 'Sustainability' &&
@@ -123,7 +275,21 @@ function App() {
                             </button>
 
                             {filtersOpen && (
-                                <SidebarFilters filters={DEFAULT_FILTERS} />
+                                <SidebarFilters
+                                    filters={ORG_FILTERS}
+                                    values={orgFilterValues}
+                                    onChange={(key, value) =>
+                                        setOrgFilterValues((previous) => ({
+                                            ...previous,
+                                            [key]: value,
+                                        }))
+                                    }
+                                    onReset={() =>
+                                        setOrgFilterValues(
+                                            getDefaultValues(ORG_FILTERS),
+                                        )
+                                    }
+                                />
                             )}
                         </div>
 
@@ -136,7 +302,9 @@ function App() {
                             />
 
                             <div className="tab-view">
-                                {orgTab === 'Overview' && <Organization />}
+                                {orgTab === 'Overview' && (
+                                    <Organization filters={orgFilterValues} />
+                                )}
                                 {orgTab !== 'Overview' && (
                                     <div className="tab-placeholder">
                                         <p>Organizations {orgTab} Dashboard</p>
