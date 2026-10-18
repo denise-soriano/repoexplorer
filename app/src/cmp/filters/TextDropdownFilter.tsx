@@ -68,54 +68,62 @@ export default function TextDropdownFilter({
             <div
                 style={{
                     display: 'flex',
-                    flexWrap: 'wrap',
+                    flexDirection: 'column',
                     gap: '4px',
-                    alignItems: 'center',
+                    width: '100%',
                 }}
             >
-                {value.map((selected) => (
-                    <span
-                        key={selected}
+                {value.length > 0 && (
+                    <div
                         style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
+                            display: 'flex',
+                            flexWrap: 'wrap',
                             gap: '4px',
-                            padding: '4px 8px',
-                            backgroundColor: '#e8f0fe',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            maxWidth: '100%',
-                            overflowWrap: 'anywhere',
                         }}
                     >
-                        {selected}
-                        <button
-                            type="button"
-                            aria-label={`Remove ${selected}`}
-                            onClick={() => removeOption(selected)}
-                            style={{
-                                border: 'none',
-                                background: 'transparent',
-                                cursor: 'pointer',
-                                padding: '0 2px',
-                                fontSize: '14px',
-                                color: '#555',
-                            }}
-                        >
-                            ×
-                        </button>
-                    </span>
-                ))}
-
+                        {value.map((selected) => (
+                            <span
+                                key={selected}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '4px 8px',
+                                    backgroundColor: '#e8f0fe',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    maxWidth: '100%',
+                                    overflowWrap: 'anywhere',
+                                }}
+                            >
+                                {selected}
+                                <button
+                                    type="button"
+                                    aria-label={`Remove ${selected}`}
+                                    onClick={() => removeOption(selected)}
+                                    style={{
+                                        border: 'none',
+                                        background: 'transparent',
+                                        cursor: 'pointer',
+                                        padding: '0 2px',
+                                        fontSize: '14px',
+                                        color: '#555',
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                )}
                 <input
                     type="text"
                     aria-label={`Search ${label}`}
                     placeholder="Search..."
                     value={search}
                     style={{
-                        flex: '1 1 100px',
-                        minWidth: '80px',
-                        maxWidth: '100%',
+                        width: '100%',
+                        minWidth: 0,
                         boxSizing: 'border-box',
                         padding: '5px 8px',
                         border: '1px solid #ccc',
