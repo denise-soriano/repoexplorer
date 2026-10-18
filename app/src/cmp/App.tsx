@@ -131,32 +131,32 @@ function App() {
     const [universityOptions, setUniversityOptions] = useState<string[]>([]);
 
     useEffect(() => {
-    const fetchUniversities = async () => {
-        try {
-            const response = await fetch(
-                `${API_URL}/overview/reposPerUniversity`,
-            );
+        const fetchUniversities = async () => {
+            try {
+                const response = await fetch(
+                    `${API_URL}/overview/reposPerUniversity`,
+                );
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch universities');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch universities');
+                }
+
+                const data: {
+                    reposPerUniversity: { name: string; value: number }[];
+                } = await response.json();
+
+                const universities = data.reposPerUniversity
+                    .map((item) => item.name)
+                    .sort((a, b) => a.localeCompare(b));
+
+                setUniversityOptions(universities);
+            } catch (error) {
+                console.error('Error fetching universities:', error);
             }
+        };
 
-            const data: {
-                reposPerUniversity: { name: string; value: number }[];
-            } = await response.json();
-
-            const universities = data.reposPerUniversity
-                .map((item) => item.name)
-                .sort((a, b) => a.localeCompare(b));
-
-            setUniversityOptions(universities);
-        } catch (error) {
-            console.error('Error fetching universities:', error);
-        }
-    };
-
-    void fetchUniversities();
-}, []);
+        void fetchUniversities();
+    }, []);
 
     const [repoFilterValues, setRepoFilterValues] = useState<
         Record<string, string[] | number>
@@ -204,9 +204,12 @@ function App() {
                                 <SidebarFilters
                                     filters={REPO_FILTERS.map((filter) =>
                                         filter.key === 'university'
-                                            ? { ...filter, options: universityOptions }
+                                            ? {
+                                                  ...filter,
+                                                  options: universityOptions,
+                                              }
                                             : filter,
-                            )}
+                                    )}
                                     values={repoFilterValues}
                                     onChange={(key, value) =>
                                         setRepoFilterValues((previous) => ({
