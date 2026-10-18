@@ -22,8 +22,16 @@ const ORG_TABS = ['Overview', 'Browse'];
 
 const REPO_FILTERS = [
     {
+        key: 'affiliationPredictionGpt5Mini',
+        label: 'Prediction Threshold',
+        type: 'slider' as const,
+        min: 0,
+        max: 1,
+        defaultValue: 0,
+    },
+    {
         key: 'university',
-        label: 'University',
+        label: 'University:',
         type: 'text' as const,
         options: [
             'Saint Louis University',
@@ -34,14 +42,14 @@ const REPO_FILTERS = [
     },
     {
         key: 'typePredictionGpt5Mini',
-        label: 'Project Type',
+        label: 'Project Type:',
         type: 'text' as const,
         options: ['DEV', 'EDU', 'WEB', 'DOCS'],
         defaultValue: [],
     },
     {
         key: 'license',
-        label: 'License',
+        label: 'License:',
         type: 'text' as const,
         options: [
             'mit',
@@ -54,22 +62,14 @@ const REPO_FILTERS = [
     },
     {
         key: 'language',
-        label: 'Primary Language',
+        label: 'Language:',
         type: 'text' as const,
         options: ['TypeScript', 'JavaScript', 'Python', 'C++'],
         defaultValue: [],
     },
     {
-        key: 'affiliationPredictionGpt5Mini',
-        label: 'Minimum Prediction Score',
-        type: 'slider' as const,
-        min: 0,
-        max: 1,
-        defaultValue: 0,
-    },
-    {
         key: 'stargazersCount',
-        label: 'Minimum Stars',
+        label: '# Stars',
         type: 'slider' as const,
         min: 0,
         max: 500,
@@ -77,7 +77,7 @@ const REPO_FILTERS = [
     },
     {
         key: 'forksCount',
-        label: 'Minimum Forks',
+        label: '# Forks',
         type: 'slider' as const,
         min: 0,
         max: 500,
@@ -85,7 +85,7 @@ const REPO_FILTERS = [
     },
     {
         key: 'releaseDownloads',
-        label: 'Minimum Release Downloads',
+        label: '# Release Downloads',
         type: 'slider' as const,
         min: 0,
         max: 500,
@@ -95,19 +95,19 @@ const REPO_FILTERS = [
 
 const ORG_FILTERS = [
     {
-        key: 'university',
-        label: 'University',
-        type: 'text' as const,
-        options: ['GWU'],
-        defaultValue: [],
-    },
-    {
         key: 'affiliationPredictionOrgs',
         label: 'Prediction Threshold',
         type: 'slider' as const,
         min: 0,
         max: 1,
         defaultValue: 0,
+    },
+    {
+        key: 'university',
+        label: 'University:',
+        type: 'text' as const,
+        options: ['GWU'],
+        defaultValue: [],
     },
 ];
 
