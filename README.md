@@ -4,17 +4,19 @@
 - Read UC OSPO's [original about.md file](docs/about.md)
 
 # Tech stack:
+**Typescript used throughout**
 - ## Frontend
     ### */app*
-    - Typescript
     - React
     - Vite
     - Nginx
 - ## Backend
     ### */api*
-    - Typescript
     - NodeJS
     - Express
+- ## Data collection
+    ### */find*
+    - [repofinder](https://github.com/UC-OSPO-Network/repofinder) rebuild with Typescript, Postgres, & local LLMs under development
 
 ## Project installation/setup
 ### 1. Download and install [Docker Desktop](https://www.docker.com/get-started/)
