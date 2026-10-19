@@ -1,0 +1,58 @@
+name: sbom
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    sbom:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+            attestations: write
+            artifact-metadata: write
+        strategy:
+            fail-fast: false
+            matrix:
+                target: [api, app]
+        steps:
+            - name: checkout
+              uses: actions/checkout@v7
+
+            - name: generate sbom
+              uses: anchore/sbom-action@v0
+              env:
+                SYFT_SOURCE_NAME: repoexplorer-${{ matrix.target }}
+                SYFT_SOURCE_VERSION: ${{ github.sha }}
+                SYFT_JAVASCRIPT_INCLUDE_DEV_DEPENDENCIES: true
+              with:
+                path: ${{ matrix.target }}
+                format: spdx-json
+                output-file: repoexplorer-${{ matrix.target }}-sbom.spdx.json
+                upload-artifact: false
+
+            - name: upload sbom
+              uses: actions/upload-artifact@v7
+              with:
+                name: repoexplorer-${{ matrix.target }}-sbom
+                path: repoexplorer-${{ matrix.target }}-sbom.spdx.json
+                if-no-files-found: error
+
+            - name: attest sbom
+              if: github.event_name == 'push'
+              uses: actions/attest@v4
+              with:
+                subject-path: repoexplorer-${{ matrix.target }}-sbom.spdx.json
+
+            - name: verify attestation
+              if: github.event_name == 'push'
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                SBOM: repoexplorer-${{ matrix.target }}-sbom.spdx.json
+              run: |
+                gh attestation verify "$SBOM" --repo "$GITHUB_REPOSITORY" \
+                    --format json \
+                    --jq '.[].verificationResult.signature.certificate | "Verified: built by \(.buildSignerURI) from commit \(.sourceRepositoryDigest)"'
