@@ -4,14 +4,30 @@ import type { organizationSummary } from '../../types/dash';
 import BarChartDiv from '../charts/BarChartDiv';
 import DataBlock from '../charts/DataBlock';
 
-export default function Organization() {
+type OrganizationProps = {
+    filters?: Record<string, string[] | number>;
+};
+
+export default function Organization({ filters }: OrganizationProps) {
     const [summary, setSummary] = useState<organizationSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const queryString = new URLSearchParams();
+    Object.entries(filters ?? {}).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         (async () => {
             try {
-                const resp = await fetch(`${API_URL}/organization`);
+                const resp = await fetch(
+                    `${API_URL}/organization${queryParams ? `?${queryParams}` : ''}`,
+                );
 
                 if (!resp.ok) {
                     throw new Error(
@@ -30,7 +46,7 @@ export default function Organization() {
                 );
             }
         })();
-    }, []);
+    }, [queryParams]);
 
     if (error) {
         return <div>Failed to load organization: {error}</div>;
@@ -67,15 +83,18 @@ export default function Organization() {
                 title="Organizations Per University"
                 endpoint="organization/orgsPerUniversity"
                 horizontal
+                filters={filters}
             />
             <BarChartDiv
                 title="Organizations Created Per Year"
                 endpoint="organization/orgsCreatedPerYear"
+                filters={filters}
             />
             <BarChartDiv
                 title="Profile Completeness"
                 endpoint="organization/profileCompleteness"
                 horizontal
+                filters={filters}
             />
         </div>
     );

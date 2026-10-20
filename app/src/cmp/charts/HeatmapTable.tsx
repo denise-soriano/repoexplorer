@@ -15,16 +15,45 @@ function getHeatmapColor(value: number) {
     return `rgb(${red}, 255, 0)`;
 }
 
-export default function HeatmapTable({ title, endpoint }: chartProps) {
+type HeatmapTableProps = chartProps & {
+    filters?: Record<string, string[] | number>;
+};
+
+export default function HeatmapTable({
+    title,
+    endpoint,
+    filters = {},
+}: HeatmapTableProps) {
     const [data, setData] = useState<barDatum[] | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const queryString = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach((selected) => queryString.append(key, selected));
+        } else if (value !== 0) {
+            queryString.append(key, String(value));
+        }
+    });
+
+    const queryParams = queryString.toString();
 
     useEffect(() => {
         if (!endpoint) return;
 
-        (async () => {
+        const controller = new AbortController();
+
+        const fetchData = async () => {
             try {
-                const res = await fetch(`${API_URL}/${endpoint}`);
+                setError(null);
+                setData(null);
+
+                const res = await fetch(
+                    `${API_URL}/${endpoint}${queryParams ? `?${queryParams}` : ''}`,
+                    {
+                        signal: controller.signal,
+                    },
+                );
 
                 if (!res.ok) {
                     throw new Error(`Failed to fetch data from ${endpoint}`);
@@ -32,14 +61,25 @@ export default function HeatmapTable({ title, endpoint }: chartProps) {
 
                 const json = await res.json();
                 const arr: barDatum[] = Object.values(json)[0] as barDatum[];
-                setData(arr);
+
+                if (!controller.signal.aborted) {
+                    setData(arr);
+                }
             } catch (err) {
+                if (controller.signal.aborted) {
+                    return;
+                }
+
                 setError(
                     err instanceof Error ? err.message : 'Failed to load data',
                 );
             }
-        })();
-    }, [endpoint]);
+        };
+
+        void fetchData();
+
+        return () => controller.abort();
+    }, [endpoint, queryParams]);
 
     if (error) {
         return (
