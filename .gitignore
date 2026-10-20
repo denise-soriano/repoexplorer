@@ -6,3 +6,4 @@ output.json
 *.parquet
 dist
 .DS_Store
+*.tsbuildinfo
