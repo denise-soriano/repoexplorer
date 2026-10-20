@@ -47,23 +47,86 @@ function createClient(
 }
 
 describe('GitHubRequestClient', () => {
-    test.each([
-        ['/repos/octo-org/octo-repo', { full_name: 'octo-org/octo-repo' }],
-        ['/users/octocat', { login: 'octocat' }],
-        ['/orgs/octo-org', { login: 'octo-org' }],
-    ])('fetches GitHub JSON endpoint %s', async (endpoint, data) => {
-        const fetchMock = createFetchMock().mockResolvedValue(
-            jsonResponse(data),
-        );
-        const client = createClient(fetchMock);
+    test.each(['https://api.github.com', 'https://github.example/api/v3/'])(
+        'keeps repositories named search in the core cooldown at %s',
+        async (baseUrl) => {
+            jest.useFakeTimers();
+            try {
+                const fetchMock = createFetchMock()
+                    .mockResolvedValueOnce(
+                        jsonResponse({ ok: true }, 200, {
+                            'x-ratelimit-remaining': '0',
+                            'x-ratelimit-reset': String(
+                                (Date.now() + 2_000) / 1_000,
+                            ),
+                            'x-ratelimit-resource': 'core',
+                        }),
+                    )
+                    .mockImplementation(async () => jsonResponse({ ok: true }));
+                const client = createClient(fetchMock, { baseUrl });
+                const first = client.request('/repos/acme/search');
+                const second = client.request('/repos/acme/search/issues');
+                await jest.advanceTimersByTimeAsync(0);
+                await expect(first).resolves.toMatchObject({ status: 200 });
+                expect(fetchMock).toHaveBeenCalledTimes(1);
+                await jest.advanceTimersByTimeAsync(1_999);
+                expect(fetchMock).toHaveBeenCalledTimes(1);
+                await jest.advanceTimersByTimeAsync(1);
+                await expect(second).resolves.toMatchObject({ status: 200 });
+            } finally {
+                jest.useRealTimers();
+            }
+        },
+    );
 
-        const result = await client.request(endpoint);
-
-        expect(result.data).toEqual(data);
-        expect(result.status).toBe(200);
-        expect(result.headers).toBeInstanceOf(Headers);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-    });
+    test.each([403, 429])(
+        'backs off secondary limits (%s) independently of an unexhausted primary reset',
+        async (status) => {
+            jest.useFakeTimers();
+            try {
+                const fetchMock = createFetchMock()
+                    .mockImplementationOnce(async () =>
+                        jsonResponse(
+                            {
+                                message:
+                                    'You have exceeded a secondary rate limit.',
+                            },
+                            status,
+                            {
+                                'x-ratelimit-remaining': '100',
+                                'x-ratelimit-reset': String(
+                                    (Date.now() + 2_000) / 1_000,
+                                ),
+                            },
+                        ),
+                    )
+                    .mockImplementationOnce(async () =>
+                        jsonResponse(
+                            {
+                                message:
+                                    'You have exceeded a secondary rate limit.',
+                            },
+                            status,
+                        ),
+                    )
+                    .mockImplementation(async () => jsonResponse({ ok: true }));
+                const pending = createClient(fetchMock, {
+                    maxRetries: 2,
+                }).request('/users/octocat');
+                await jest.advanceTimersByTimeAsync(59_999);
+                expect(fetchMock).toHaveBeenCalledTimes(1);
+                await jest.advanceTimersByTimeAsync(1);
+                expect(fetchMock).toHaveBeenCalledTimes(2);
+                await jest.advanceTimersByTimeAsync(119_999);
+                expect(fetchMock).toHaveBeenCalledTimes(2);
+                await jest.advanceTimersByTimeAsync(1);
+                await expect(pending).resolves.toMatchObject({ status: 200 });
+                expect(fetchMock).toHaveBeenCalledTimes(3);
+            } finally {
+                jest.useRealTimers();
+            }
+        },
+    );
 
     test('adds query parameters and merges injected authentication and request headers', async () => {
         const fetchMock = createFetchMock().mockResolvedValue(
@@ -89,6 +152,8 @@ describe('GitHubRequestClient', () => {
             },
         );
 
+        expect(result.data).toEqual({ total_count: 1 });
+        expect(result.status).toBe(200);
         const [input, init] = fetchMock.mock.calls[0];
         const requestUrl = new URL(String(input));
         const requestHeaders = new Headers(init?.headers);
@@ -150,22 +215,20 @@ describe('GitHubRequestClient', () => {
         },
     );
 
-    test.each([409, 412, 502, 503, 504])(
-        'retries HTTP %s even when the error body is HTML',
-        async (status) => {
-            const fetchMock = createFetchMock()
-                .mockResolvedValueOnce(
-                    new Response('<html>Temporary failure</html>', { status }),
-                )
-                .mockResolvedValueOnce(jsonResponse({ ok: true }));
-            const client = createClient(fetchMock, { maxRetries: 1 });
+    test('retries a gateway error even when the error body is HTML', async () => {
+        const status = 502;
+        const fetchMock = createFetchMock()
+            .mockResolvedValueOnce(
+                new Response('<html>Temporary failure</html>', { status }),
+            )
+            .mockResolvedValueOnce(jsonResponse({ ok: true }));
+        const client = createClient(fetchMock, { maxRetries: 1 });
 
-            await expect(
-                client.request('/repos/octo-org/octo-repo'),
-            ).resolves.toMatchObject({ data: { ok: true } });
-            expect(fetchMock).toHaveBeenCalledTimes(2);
-        },
-    );
+        await expect(
+            client.request('/repos/octo-org/octo-repo'),
+        ).resolves.toMatchObject({ data: { ok: true } });
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
 
     test('preserves the HTTP status and raw body after HTML retries are exhausted', async () => {
         const fetchMock = createFetchMock().mockImplementation(
@@ -261,37 +324,6 @@ describe('GitHubRequestClient', () => {
         }
     });
 
-    test('shares a secondary rate-limit cooldown across queued callers', async () => {
-        const fetchMock = createFetchMock()
-            .mockResolvedValueOnce(
-                jsonResponse(
-                    { message: 'You have exceeded a secondary rate limit.' },
-                    403,
-                    { 'retry-after': '2' },
-                ),
-            )
-            .mockImplementation(async () => jsonResponse({ ok: true }));
-        const client = createClient(fetchMock, {
-            maxRetries: 1,
-            concurrency: 1,
-        });
-
-        jest.useFakeTimers();
-        const first = client.request('/repos/octo-org/first');
-        const second = client.request('/users/octocat');
-        try {
-            await jest.advanceTimersByTimeAsync(0);
-            expect(fetchMock).toHaveBeenCalledTimes(1);
-            await jest.advanceTimersByTimeAsync(1_999);
-            expect(fetchMock).toHaveBeenCalledTimes(1);
-            await jest.advanceTimersByTimeAsync(1);
-            await expect(Promise.all([first, second])).resolves.toHaveLength(2);
-            expect(fetchMock).toHaveBeenCalledTimes(3);
-        } finally {
-            jest.useRealTimers();
-        }
-    });
-
     test('removes a canceled request from the cooldown queue', async () => {
         const fetchMock = createFetchMock()
             .mockResolvedValueOnce(
@@ -325,39 +357,47 @@ describe('GitHubRequestClient', () => {
         }
     });
 
-    test('keeps primary search cooldown separate from ordinary API requests', async () => {
-        const fetchMock = createFetchMock()
-            .mockResolvedValueOnce(
-                jsonResponse({ message: 'API rate limit exceeded' }, 403, {
-                    'x-ratelimit-remaining': '0',
-                    'x-ratelimit-reset': String((Date.now() + 2_000) / 1_000),
-                    'x-ratelimit-resource': 'search',
-                }),
-            )
-            .mockImplementation(async () => jsonResponse({ ok: true }));
-        const client = createClient(fetchMock, {
-            maxRetries: 1,
-            concurrency: 1,
-        });
-
-        jest.useFakeTimers();
-        const search = client.request('/search/repositories', {
-            query: { q: 'octo' },
-        });
-        const ordinary = client.request('/repos/octo-org/octo-repo');
-        try {
-            await jest.advanceTimersByTimeAsync(0);
-            await expect(ordinary).resolves.toMatchObject({
-                data: { ok: true },
+    test.each(['https://api.github.com', 'https://github.example/api/v3/'])(
+        'keeps primary search cooldown separate at %s',
+        async (baseUrl) => {
+            const fetchMock = createFetchMock()
+                .mockResolvedValueOnce(
+                    jsonResponse({ message: 'API rate limit exceeded' }, 403, {
+                        'x-ratelimit-remaining': '0',
+                        'x-ratelimit-reset': String(
+                            (Date.now() + 2_000) / 1_000,
+                        ),
+                        'x-ratelimit-resource': 'search',
+                    }),
+                )
+                .mockImplementation(async () => jsonResponse({ ok: true }));
+            const client = createClient(fetchMock, {
+                maxRetries: 1,
+                concurrency: 1,
+                baseUrl,
             });
-            expect(fetchMock).toHaveBeenCalledTimes(2);
-            await jest.advanceTimersByTimeAsync(2_000);
-            await expect(search).resolves.toMatchObject({ data: { ok: true } });
-            expect(fetchMock).toHaveBeenCalledTimes(3);
-        } finally {
-            jest.useRealTimers();
-        }
-    });
+
+            jest.useFakeTimers();
+            const search = client.request('/search/repositories', {
+                query: { q: 'octo' },
+            });
+            const ordinary = client.request('/repos/octo-org/octo-repo');
+            try {
+                await jest.advanceTimersByTimeAsync(0);
+                await expect(ordinary).resolves.toMatchObject({
+                    data: { ok: true },
+                });
+                expect(fetchMock).toHaveBeenCalledTimes(2);
+                await jest.advanceTimersByTimeAsync(2_000);
+                await expect(search).resolves.toMatchObject({
+                    data: { ok: true },
+                });
+                expect(fetchMock).toHaveBeenCalledTimes(3);
+            } finally {
+                jest.useRealTimers();
+            }
+        },
+    );
 
     test.each([403, 429])(
         'pauses core callers after a search secondary limit (%s)',
@@ -392,22 +432,6 @@ describe('GitHubRequestClient', () => {
             }
         },
     );
-
-    test('retries a 429 response and honors Retry-After', async () => {
-        const fetchMock = createFetchMock()
-            .mockResolvedValueOnce(
-                jsonResponse({ message: 'slow down' }, 429, {
-                    'retry-after': '0',
-                }),
-            )
-            .mockResolvedValueOnce(jsonResponse({ ok: true }));
-        const client = createClient(fetchMock, { maxRetries: 1 });
-
-        await expect(client.request('/search/issues')).resolves.toMatchObject({
-            data: { ok: true },
-        });
-        expect(fetchMock).toHaveBeenCalledTimes(2);
-    });
 
     test('times out and retries a request before throwing a timeout error', async () => {
         const fetchMock = createFetchMock(

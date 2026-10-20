@@ -19,7 +19,7 @@ const github = new GitHubRequestClient({
 });
 ```
 
-The client defaults to `https://api.github.com`, serial dispatch, a 15 second request timeout, and three retries. `baseUrl`, `headers`, `fetch`, `now`, `random`, and `sleep` can be injected for GitHub Enterprise deployments and deterministic tests. Primary rate limits track search paths separately from ordinary REST paths. Secondary rate limits pause all queued requests on the client. Rate limited `403` and `429` responses use `Retry-After` or rate-limit reset headers to determine the cooldown.
+The client defaults to `https://api.github.com`, serial dispatch, a 15 second request timeout, and three retries. `baseUrl`, `headers`, `fetch`, `now`, `random`, and `sleep` can be injected for GitHub Enterprise deployments and deterministic tests. Primary rate limits track search paths separately from ordinary REST paths. Successful responses that report zero remaining requests also pause that resource until its reset time. Secondary rate limits pause all queued requests on the client. Rate limited `403` and `429` responses honor `Retry-After` and exhausted primary quota reset times. Without `Retry-After`, secondary limits wait at least one minute; repeated secondary limits increase the delay exponentially. These waits follow [GitHub's rate-limit guidance](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api#handle-rate-limit-errors-appropriately).
 
 ## Requests and response contracts
 
@@ -39,7 +39,7 @@ console.log(
 For raw repository content, select text mode and the raw media type:
 
 ```ts
-const readme = await github.request<string>(
+const readme = await github.request(
     '/repos/octo-org/octo-repo/contents/README.md',
     {
         responseType: 'text',

@@ -331,7 +331,10 @@ export class GitHubRequestClient {
         options: GitHubRequestOptions = {},
     ): Promise<GitHubResponse<T | string>> {
         const url = createRequestUrl(this.baseUrl, endpoint, options.query);
-        const bucket = getBucketFromPath(url.pathname);
+        const bucket = getBucketFromPath(
+            url.pathname,
+            new URL(this.baseUrl).pathname,
+        );
         const requestHeaders = new Headers(this.defaultHeaders);
         mergeHeaders(requestHeaders, options.headers);
         const timeoutMs = validatePositiveInteger(
@@ -505,6 +508,15 @@ export class GitHubRequestClient {
             };
 
             if (response.ok) {
+                if (response.headers.get('x-ratelimit-remaining') === '0') {
+                    this.queue.pause(
+                        getBucketFromResource(response.headers, requestBucket),
+                        parseRateLimitReset(
+                            response.headers.get('x-ratelimit-reset'),
+                            this.now(),
+                        ) ?? RATE_LIMIT_FALLBACK_DELAY_MS,
+                    );
+                }
                 return { response: githubResponse };
             }
 
@@ -520,6 +532,7 @@ export class GitHubRequestClient {
                 response.headers,
                 data,
                 this.now(),
+                attempt,
             );
 
             if (rateLimitDelayMs !== undefined) {
@@ -625,8 +638,15 @@ function createRequestUrl(
     return url;
 }
 
-function getBucketFromPath(pathname: string): RateLimitBucket {
-    return /(?:^|\/)search(?:\/|$)/i.test(pathname) ? 'search' : 'core';
+function getBucketFromPath(
+    pathname: string,
+    basePath: string,
+): RateLimitBucket {
+    const prefix = basePath.endsWith('/') ? basePath : `${basePath}/`;
+    const apiPath = pathname.startsWith(prefix)
+        ? pathname.slice(prefix.length)
+        : pathname;
+    return /^search(?:\/|$)/i.test(apiPath) ? 'search' : 'core';
 }
 
 function getBucketFromResource(
@@ -674,6 +694,7 @@ function getRateLimitDelay(
     headers: Headers,
     data: unknown,
     now: number,
+    attempt: number,
 ): number | undefined {
     const retryAfter = parseRetryAfter(headers.get('retry-after'), now);
     const resetDelay = parseRateLimitReset(
@@ -689,34 +710,26 @@ function getRateLimitDelay(
         message.includes('secondary rate limit') ||
         message.includes('abuse detection');
 
-    if (status === 429) {
-        return (
-            maxDefinedDelay(retryAfter, resetDelay) ??
-            RATE_LIMIT_FALLBACK_DELAY_MS
-        );
-    }
-    if (status !== 403 || (!primaryLimit && !secondaryLimit)) {
+    if (
+        status !== 429 &&
+        (status !== 403 || (!primaryLimit && !secondaryLimit))
+    ) {
         return undefined;
     }
 
-    if (primaryLimit) {
-        return (
-            maxDefinedDelay(resetDelay, retryAfter) ??
-            RATE_LIMIT_FALLBACK_DELAY_MS
-        );
-    }
-    return retryAfter ?? resetDelay ?? RATE_LIMIT_FALLBACK_DELAY_MS;
-}
-
-function maxDefinedDelay(
-    ...delays: Array<number | undefined>
-): number | undefined {
-    const availableDelays = delays.filter(
-        (delay): delay is number => delay !== undefined,
+    const primaryOnly =
+        primaryLimit &&
+        !message.includes('secondary rate limit') &&
+        !message.includes('abuse detection');
+    // A primary reset does not describe a secondary cooldown when quota remains.
+    const minimumDelay =
+        retryAfter ??
+        (primaryOnly ? resetDelay : undefined) ??
+        RATE_LIMIT_FALLBACK_DELAY_MS;
+    return Math.max(
+        primaryLimit ? (resetDelay ?? 0) : 0,
+        minimumDelay * (primaryOnly ? 1 : 2 ** Math.min(attempt, 30)),
     );
-    return availableDelays.length > 0
-        ? Math.max(...availableDelays)
-        : undefined;
 }
 
 function getErrorMessage(data: unknown): string {
