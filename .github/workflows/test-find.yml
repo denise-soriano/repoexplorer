@@ -1,0 +1,30 @@
+name: find package checks
+
+on: [push, pull_request]
+
+jobs:
+    checks:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.head_ref }}
+
+            - name: setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+
+            - name: install find dependencies
+              run: cd find && npm ci
+
+            - name: run find checks
+              run: |
+                  cd find
+                  npm test
+                  npm run lint
+                  npm run typecheck
+                  npm run build

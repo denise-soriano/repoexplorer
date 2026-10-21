@@ -4,17 +4,19 @@
 - Read UC OSPO's [original about.md file](docs/about.md)
 
 # Tech stack:
+**Typescript used throughout**
 - ## Frontend
     ### */app*
-    - Typescript
     - React
     - Vite
     - Nginx
 - ## Backend
     ### */api*
-    - Typescript
     - NodeJS
     - Express
+- ## Data collection
+    ### */find*
+    - [repofinder](https://github.com/UC-OSPO-Network/repofinder) rebuild with Typescript, Postgres, & local LLMs under development
 
 ## Project installation/setup
 ### 1. Download and install [Docker Desktop](https://www.docker.com/get-started/)
@@ -39,3 +41,6 @@ The frontend can be served by nginx via the *app* container (production behavior
 
 # API Routes
 See the [API Route Reference](docs/dev/api_routes.md) for information on every endpoint, parameter, response, etc.
+
+# SBOMs
+See the [SBOM guide](docs/dev/sbom.md) for where to download the backend and frontend SBOMs and how to verify them.
