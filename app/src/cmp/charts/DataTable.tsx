@@ -26,37 +26,38 @@ export default function DataTable({
     const [error, setError] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
     const queryString = new URLSearchParams();
-    const [selectedRow, setSelectedRow] =
-        useState<Record<string, unknown> | null>(null);
+    const [selectedRow, setSelectedRow] = useState<Record<
+        string,
+        unknown
+    > | null>(null);
     const [firstVisibleRow, setFirstVisibleRow] = useState(1);
     const [lastVisibleRow, setLastVisibleRow] = useState(MAX_VISIBLE_ROWS);
     const tableContainerRef = useRef<HTMLDivElement>(null);
     const COLUMN_WIDTHS: Record<string, string> = {
-    name: '180px',
-    university: '180px',
-    id: '100px',
-    fullname: '220px',
-    owner: '160px',
-    license: '110px',
-    language: '120px',
-    htmlurl: '220px',
-    description: '250px',
-    fork: '70px',
-    createdat: '150px',
-    updatedat: '150px',
-    pushedat: '150px',
-    homepage: '180px',
-    size: '80px',
-    stargazerscount: '130px',
-    readme: '300px',
-    value: '100px',
-};
+        name: '180px',
+        university: '180px',
+        id: '100px',
+        fullname: '220px',
+        owner: '160px',
+        license: '110px',
+        language: '120px',
+        htmlurl: '220px',
+        description: '250px',
+        fork: '70px',
+        createdat: '150px',
+        updatedat: '150px',
+        pushedat: '150px',
+        homepage: '180px',
+        size: '80px',
+        stargazerscount: '130px',
+        readme: '300px',
+        value: '100px',
+    };
 
-const getColumnWidth = (header: string) => {
-    const key = header.replace(/[_\s-]/g, '').toLowerCase();
-    return COLUMN_WIDTHS[key] ?? '150px';
-};
-
+    const getColumnWidth = (header: string) => {
+        const key = header.replace(/[_\s-]/g, '').toLowerCase();
+        return COLUMN_WIDTHS[key] ?? '150px';
+    };
 
     Object.entries(filters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
@@ -101,10 +102,8 @@ const getColumnWidth = (header: string) => {
                 const arr: Record<string, unknown>[] = Array.isArray(json)
                     ? json
                     : (Object.values(json)[0] as Record<string, unknown>[]);
-                    
 
                 setData(arr);
-
             } catch (err) {
                 if (controller.signal.aborted) {
                     return;
@@ -127,31 +126,31 @@ const getColumnWidth = (header: string) => {
     }, [endpoint, queryParams]);
 
     useEffect(() => {
-    const container = tableContainerRef.current;
+        const container = tableContainerRef.current;
 
-    if (container) {
-        const rows = container.querySelectorAll('tbody tr');
+        if (container) {
+            const rows = container.querySelectorAll('tbody tr');
 
-        const containerTop =
-            container.getBoundingClientRect().top + container.clientTop;
-        const containerBottom = containerTop + container.clientHeight;
+            const containerTop =
+                container.getBoundingClientRect().top + container.clientTop;
+            const containerBottom = containerTop + container.clientHeight;
 
-        let first = 0;
-        let last = 0;
+            let first = 0;
+            let last = 0;
 
-        rows.forEach((row, index) => {
-            const rect = row.getBoundingClientRect();
+            rows.forEach((row, index) => {
+                const rect = row.getBoundingClientRect();
 
-            if (rect.bottom > containerTop && rect.top < containerBottom) {
-                if (first === 0) first = index + 1;
-                last = index + 1;
-            }
-        });
+                if (rect.bottom > containerTop && rect.top < containerBottom) {
+                    if (first === 0) first = index + 1;
+                    last = index + 1;
+                }
+            });
 
-        setFirstVisibleRow(first);
-        setLastVisibleRow(last);
-    }
-}, [data, searchQuery, scrollable, maxRows]);
+            setFirstVisibleRow(first);
+            setLastVisibleRow(last);
+        }
+    }, [data, searchQuery, scrollable, maxRows]);
 
     if (loading) {
         return <div>Loading {title}...</div>;
@@ -164,36 +163,36 @@ const getColumnWidth = (header: string) => {
             </div>
         );
     }
-const REPOSITORY_COLUMNS = [
-    'university',
-    'id',
-    'fullName',
-    'owner',
-    'license',
-    'language',
-    'htmlUrl',
-    'description',
-    'fork',
-    'createdAt',
-    'updatedAt',
-    'pushedAt',
-    'homepage',
-    'size',
-    'stargazersCount',
-    'watchersCount',
-    'forksCount',
-    'openIssuesCount',
-    'watchers',
-    'organization',
-    'releaseDownloads',
-    'contributorCount',
-    'busFactor',
-    'subscribersCount',
-    'affiliationPredictionGpt5Mini',
-    'typePredictionGpt5Mini',
-];
+    const REPOSITORY_COLUMNS = [
+        'university',
+        'id',
+        'fullName',
+        'owner',
+        'license',
+        'language',
+        'htmlUrl',
+        'description',
+        'fork',
+        'createdAt',
+        'updatedAt',
+        'pushedAt',
+        'homepage',
+        'size',
+        'stargazersCount',
+        'watchersCount',
+        'forksCount',
+        'openIssuesCount',
+        'watchers',
+        'organization',
+        'releaseDownloads',
+        'contributorCount',
+        'busFactor',
+        'subscribersCount',
+        'affiliationPredictionGpt5Mini',
+        'typePredictionGpt5Mini',
+    ];
 
-let headers: string[] = [];
+    let headers: string[] = [];
 
     if (data.length > 0) {
         // Only apply the special repository column sorting to the Browse Repositories table
@@ -204,37 +203,40 @@ let headers: string[] = [];
         }
     }
 
-
     // Filter data based on search query
     const filteredData = data.filter((row) => {
         if (!searchQuery) return true;
-        
+
         // Check if any value in the row matches the search string (case-insensitive)
-        return Object.values(row).some((val) => 
-            String(val).toLowerCase().includes(searchQuery.toLowerCase())
+        return Object.values(row).some((val) =>
+            String(val).toLowerCase().includes(searchQuery.toLowerCase()),
         );
     });
 
     const handleDownload = () => {
         if (filteredData.length === 0) return;
-        
+
         const keys = Object.keys(filteredData[0]);
         const csvContent = [
             keys.join(','),
             ...filteredData.map((row) =>
-                keys.map((k) => `"${String(row[k] ?? '')}"`).join(',')
+                keys.map((k) => `"${String(row[k] ?? '')}"`).join(','),
             ),
         ].join('\n');
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([csvContent], {
+            type: 'text/csv;charset=utf-8;',
+        });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', `${String(title).replace(/\s+/g, '_')}_data.csv`);
+        link.setAttribute(
+            'download',
+            `${String(title).replace(/\s+/g, '_')}_data.csv`,
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
-
 
     function handleTableScroll(event: React.UIEvent<HTMLDivElement>) {
         const container = event.currentTarget;
@@ -247,8 +249,7 @@ let headers: string[] = [];
         }
 
         const containerTop =
-            container.getBoundingClientRect().top +
-            container.clientTop;
+            container.getBoundingClientRect().top + container.clientTop;
 
         const containerBottom = containerTop + container.clientHeight;
 
@@ -274,7 +275,15 @@ let headers: string[] = [];
 
             {showSearch && (
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Search</label>
+                    <label
+                        style={{
+                            display: 'block',
+                            marginBottom: '4px',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        Search
+                    </label>
                     <input
                         type="text"
                         placeholder="Search table..."
@@ -285,7 +294,7 @@ let headers: string[] = [];
                             width: '100%',
                             borderRadius: '4px',
                             border: '1px solid #ccc',
-                            boxSizing: 'border-box'
+                            boxSizing: 'border-box',
                         }}
                     />
                 </div>
@@ -299,12 +308,14 @@ let headers: string[] = [];
                     onScroll={handleTableScroll}
 
                     style={{
-                        height: scrollable ? `${maxRows * 43 + 45}px` : undefined,
+                        height: scrollable
+                            ? `${maxRows * 43 + 45}px`
+                            : undefined,
                         overflowY: scrollable ? 'auto' : undefined,
                         overflowX: 'auto',
                         position: 'relative',
                     }}
-                >                    
+                >
                     <table
                         style={{
                             width: 'max-content',
@@ -323,7 +334,7 @@ let headers: string[] = [];
                                 {headers.map((header) => (
                                     <th
                                         key={header}
-                                        style={{ 
+                                        style={{
                                             padding: '12px 8px',
                                             width: getColumnWidth(header),
                                             minWidth: getColumnWidth(header),
@@ -345,51 +356,65 @@ let headers: string[] = [];
                         </thead>
                         <tbody>
                             {filteredData.map((row, index) => (
-                                    <tr
-                                        key={index}
-                                        onClick={() => {
-                                            if (onRowClick) {
-                                                setSelectedRow(row);
-                                                onRowClick(row);
-                                            }
-                                        }}
-                                        style={{
-                                            borderBottom: '1px solid #eee',
-                                            cursor: onRowClick ? 'pointer' : 'default',
-                                            backgroundColor: selectedRow === row ? '#e8f0fe' : 'transparent',
-                                        }}
-                                    >
-                                        {headers.map((header) => (
-                                            <td
-                                                key={header}
-                                                style={{
-                                                    padding: '8px 10px',
-                                                    width: getColumnWidth(header),
-                                                    minWidth: getColumnWidth(header),
-                                                    maxWidth: getColumnWidth(header),
-                                                    whiteSpace: 'normal',
-                                                    wordBreak: 'break-word',
-                                                    verticalAlign: 'top',
-                                                    boxSizing: 'border-box',
-                                                }}
-                                            >
-                                                {typeof row[header] === 'number'
-                                                    ? Number(
-                                                          row[header].toFixed(2),
-                                                      ).toString()
-                                                    : String(row[header] ?? '')}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
+                                <tr
+                                    key={index}
+                                    onClick={() => {
+                                        if (onRowClick) {
+                                            setSelectedRow(row);
+                                            onRowClick(row);
+                                        }
+                                    }}
+                                    style={{
+                                        borderBottom: '1px solid #eee',
+                                        cursor: onRowClick
+                                            ? 'pointer'
+                                            : 'default',
+                                        backgroundColor:
+                                            selectedRow === row
+                                                ? '#e8f0fe'
+                                                : 'transparent',
+                                    }}
+                                >
+                                    {headers.map((header) => (
+                                        <td
+                                            key={header}
+                                            style={{
+                                                padding: '8px 10px',
+                                                width: getColumnWidth(header),
+                                                minWidth:
+                                                    getColumnWidth(header),
+                                                maxWidth:
+                                                    getColumnWidth(header),
+                                                whiteSpace: 'normal',
+                                                wordBreak: 'break-word',
+                                                verticalAlign: 'top',
+                                                boxSizing: 'border-box',
+                                            }}
+                                        >
+                                            {typeof row[header] === 'number'
+                                                ? Number(
+                                                      row[header].toFixed(2),
+                                                  ).toString()
+                                                : String(row[header] ?? '')}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
             )}
 
             {showRowMessage && (
-                <p style={{ marginTop: '16px', fontSize: '14px', color: '#333' }}>
-                    Viewing rows {filteredData.length > 0 ? firstVisibleRow : 0} through {lastVisibleRow} of {filteredData.length}
+                <p
+                    style={{
+                        marginTop: '16px',
+                        fontSize: '14px',
+                        color: '#333',
+                    }}
+                >
+                    Viewing rows {filteredData.length > 0 ? firstVisibleRow : 0}{' '}
+                    through {lastVisibleRow} of {filteredData.length}
                 </p>
             )}
 
@@ -403,7 +428,7 @@ let headers: string[] = [];
                         backgroundColor: '#f1f1f1',
                         border: '1px solid #ccc',
                         borderRadius: '4px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                     }}
                 >
                     Download

@@ -1,4 +1,3 @@
-
 export function formatLabel(str: string): string {
     if (!str) return '';
 
